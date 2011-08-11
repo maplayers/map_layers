@@ -33,7 +33,7 @@ describe MapLayers::JsWrapper do
 
   describe ".declare" do
     it "should declare a latlng variable" do     
-      point = MapLayers::OpenLayers::LonLat.new(123.4,123.6)
+      point = OpenLayers::LonLat.new(123.4,123.6)
       point.declare("point").should == "var point = new OpenLayers.LonLat(123.4,123.6);"
       point.variable.should == "point" 
     end
@@ -56,13 +56,13 @@ describe MapLayers::JsGenerator do
   it "should test js generator" do     
     @map = MapLayers::Map.new("map")
     js = MapLayers::JsGenerator.new
-    js.assign("markers", MapLayers::Layer::Markers.new('Markers'))
+    js.assign("markers", OpenLayers::Layer::Markers.new('Markers'))
     @markers = MapLayers::JsVar.new('markers')
     js << @map.addLayer(@markers)
-    js.assign("size", MapLayers::OpenLayers::Size.new(10,17))
-    js.assign("offset", MapLayers::OpenLayers::Pixel.new(MapLayers::JsExpr.new("-(size.w/2), -size.h")))
-    js.assign("icon", MapLayers::OpenLayers::Icon.new('http://boston.openguides.org/markers/AQUA.png',:size,:offset))
-    js << @markers.add_marker(MapLayers::OpenLayers::Marker.new(MapLayers::OpenLayers::LonLat.new(0,0),:icon))
+    js.assign("size", OpenLayers::Size.new(10,17))
+    js.assign("offset", OpenLayers::Pixel.new(MapLayers::JsExpr.new("-(size.w/2), -size.h")))
+    js.assign("icon", OpenLayers::Icon.new('http://boston.openguides.org/markers/AQUA.png',:size,:offset))
+    js << @markers.add_marker(OpenLayers::Marker.new(OpenLayers::LonLat.new(0,0),:icon))
     html =<<EOS
 markers = new OpenLayers.Layer.Markers("Markers");
 map.addLayer(markers);
@@ -92,8 +92,8 @@ EOS
 
   it "should test wms example" do    
     @map = MapLayers::Map.new("map") do |map,page|
-      page << map.add_control(MapLayers::Control::LayerSwitcher.new)
-      page << map.add_layer(MapLayers::Layer::WMS.new( "OpenLayers WMS",
+      page << map.add_control(OpenLayers::Control::LayerSwitcher.new)
+      page << map.add_layer(OpenLayers::Layer::WMS.new( "OpenLayers WMS",
           "http://labs.metacarta.com/wms/vmap0", {:layers => 'basic'} ))
       page << map.zoom_to_max_extent()
     end
@@ -111,7 +111,7 @@ EOS
 
   it "should test kml example" do    
     @map = MapLayers::Map.new("map") do |map,page|
-      page << map.add_layer(MapLayers::Layer::GML.new("Places KML", "/places/kml", {:format=> MapLayers::JsExpr.new("OpenLayers.Format.KML")}))
+      page << map.add_layer(OpenLayers::Layer::GML.new("Places KML", "/places/kml", {:format=> MapLayers::JsExpr.new("OpenLayers.Format.KML")}))
     end
     html =<<EOS
 <script defer="defer" type="text/javascript">
@@ -125,7 +125,7 @@ EOS
 
   it "should test wfs example" do    
     @map = MapLayers::Map.new("map_div") do |map, page|
-      page << map.add_layer(MapLayers::Layer::WFS.new("Places WFS", "/places/wfs", {:typename => "places"}, {:featureClass => MapLayers::JsExpr.new("OpenLayers.Feature.WFS")}))
+      page << map.add_layer(OpenLayers::Layer::WFS.new("Places WFS", "/places/wfs", {:typename => "places"}, {:featureClass => MapLayers::JsExpr.new("OpenLayers.Feature.WFS")}))
     end
     html =<<EOS
 <script defer="defer" type="text/javascript">

@@ -1,12 +1,4 @@
 module MapLayers # :nodoc:
-  
-  def self.const_missing(sym)
-    if self.const_defined?(sym)
-      k = self.const_get(sym)
-    else
-      k = self.const_set(sym, Class.new(JsClass))
-    end
-  end
 
   # extend the class that include this with the methods in ClassMethods
   def self.included(base)
@@ -39,7 +31,7 @@ module MapLayers # :nodoc:
       #session :off, :only => [:kml, :wfs, :georss]
 
     end
-
+    
     def map_layers_config
       @map_layers_config || self.superclass.instance_variable_get('@map_layers_config')
     end

@@ -5,11 +5,11 @@ describe MapLayers do
   describe ".const_missing" do
 
     it "should return a class with a child of MapLayers" do
-      MapLayers::Test.name.should == "MapLayers::Test"
+      OpenLayers::Test.name.should == "OpenLayers::Test"
     end
 
     it "should return a class with a little child of MapLayers" do
-      MapLayers::Test::Toto.name.should == "MapLayers::Test::Toto"
+      OpenLayers::Test::Toto.name.should == "OpenLayers::Test::Toto"
     end
     
   end
