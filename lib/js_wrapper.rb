@@ -140,9 +140,11 @@ module MapLayers
     include JsWrapper
 
     def self.const_missing(sym)
-      k = Class.new(JsClass)
-      self.const_set(sym.to_s, k)
-      return k
+      if self.const_defined?(sym)
+        k = self.const_get(sym)
+      else
+        k = self.const_set(sym, Class.new(JsClass))
+      end
     end
  
     def initialize(*args)

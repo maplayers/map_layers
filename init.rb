@@ -1,7 +1,7 @@
 require 'map_layers'
-require 'js_wrapper'
 require 'map'
 require 'view_helpers'
+require 'js_wrapper'
 
 ActionController::Base.send(:include, MapLayers)
 ActionView::Base.send(:include, MapLayers)
