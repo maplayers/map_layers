@@ -1,6 +1,5 @@
 require 'map_layers'
 require 'js_wrapper'
-require 'js_classes'
 require 'map'
 require 'view_helpers'
 
