@@ -1,3 +1,4 @@
+require 'openlayers'
 require 'map_layers'
 require 'map'
 require 'view_helpers'
