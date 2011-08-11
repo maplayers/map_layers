@@ -1,4 +1,11 @@
 module MapLayers # :nodoc:
+  
+  def self.const_missing(sym)
+    k = Class.new(JsClass)
+    self.const_set(sym.to_s, k)
+    return k
+  end
+
   # extend the class that include this with the methods in ClassMethods
   def self.included(base)
     base.extend(ClassMethods)

@@ -139,6 +139,12 @@ module MapLayers
   class JsClass
     include JsWrapper
 
+    def self.const_missing(sym)
+      k = Class.new(JsClass)
+      self.const_set(sym.to_s, k)
+      return k
+    end
+ 
     def initialize(*args)
       @args = args
     end
@@ -149,6 +155,7 @@ module MapLayers
       args = @args.collect{ |arg| JsWrapper.javascriptify_variable(arg) }
       JsExpr.new("new #{jsclass.join('.')}(#{args.join(',')})")
     end
+
   end
 
   class JsGenerator # :nodoc:

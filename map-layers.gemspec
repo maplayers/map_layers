@@ -11,8 +11,8 @@ Gem::Specification.new do |s|
   s.name        = "map-layers"
   s.version     = MapLayers::VERSION
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ["Luc Donnet"]
-  s.email       = ["luc.donnet@dryade.net"]
+  s.authors     = ["Luc Donnet", "Alban Peignier"]
+  s.email       = ["luc.donnet@dryade.net", "alban.peignier@dryade.net"]
   s.homepage    = ""
   s.summary     = %q{library dedicated to generate OSM javascript}
   s.description = %q{library dedicated to generate OSM javascript}
