@@ -8,6 +8,6 @@ def copy_files(source_path, destination_path, plugin_root)
   FileUtils.cp_r(source, destination)
 end
 
-copy_files("/public/.", "/public", File.dirname(__FILE__))
+#copy_files("/public/.", "/public", File.dirname(__FILE__))
 
 end
