@@ -1,3 +1,9 @@
+require "map_layers/version"
+require "map_layers/view_helpers"
+require "map_layers/js_wrapper"
+require "map_layers/openlayers"
+require "map_layers/map"
+
 module MapLayers # :nodoc:
 
   # extend the class that include this with the methods in ClassMethods

@@ -4,9 +4,11 @@ require "map_layers/version"
 
 Gem::Specification.new do |s|
 
+  s.add_development_dependency('rake')
+  s.add_development_dependency('rdoc')
   s.add_development_dependency('rspec')
   s.add_development_dependency('autotest')
-  s.add_development_dependency('rake', '< 0.9')
+  s.add_development_dependency('autotest-notification')
 
   s.name        = "map-layers"
   s.version     = MapLayers::VERSION

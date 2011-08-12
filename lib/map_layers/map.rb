@@ -1,5 +1,3 @@
-require 'js_wrapper'
-
 module MapLayers
 
   GOOGLE = OpenLayers::Layer::Google.new("Google Street")

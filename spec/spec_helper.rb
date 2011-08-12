@@ -1,6 +1,6 @@
 require 'rspec'
 
-require File.expand_path('../../lib/map_layers_require', __FILE__)
+require File.expand_path('../../lib/map_layers', __FILE__)
 
 require 'erb'
 
