@@ -34,6 +34,7 @@ module MapLayers
         html << javascript_include_tag('OpenLayers')
       end
 
+
       html << stylesheet_link_tag("map")
       img_path=(Pathname(ActionController::Base.relative_url_root||"") +img_path).cleanpath.to_s
       html << javascript_tag("OpenLayers.ImgPath='"+ img_path  + "/';")

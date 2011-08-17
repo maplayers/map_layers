@@ -19,11 +19,14 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]	
 
-  s.add_development_dependency('rspec')
-  s.add_development_dependency('rake')
-  s.add_development_dependency('rdoc')
-  s.add_development_dependency('autotest')
-  s.add_development_dependency('autotest-notification')
+  if ENV['RAILS_2']        
+    s.add_development_dependency(%q<rails>, ["~> 2.3.8"])
+  else
+    s.add_development_dependency(%q<rails>, [">= 3.0.0"])
+  end
+  s.add_development_dependency(%q<rspec-rails>, ["~> 2.0.0"])
 
-  s.add_runtime_dependency('activerecord') 		
+  s.add_development_dependency('rake')
+  s.add_development_dependency('autotest')
+  s.add_development_dependency('autotest-notification') 		
 end
