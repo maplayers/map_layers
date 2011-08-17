@@ -1,11 +1,19 @@
-require "map_layers/version"
-require "map_layers/view_helpers"
-require "map_layers/js_wrapper"
-require "map_layers/openlayers"
-require "map_layers/map"
+require 'active_support/core_ext'
 
 module MapLayers # :nodoc:
 
+  # Include helpers in the given scope to AC and AV.
+  # def self.include_helpers(scope)
+  #   ActiveSupport.on_load(:action_controller) do
+  #     include scope::MapLayers
+  #   end
+    
+  #   ActiveSupport.on_load(:action_view) do
+  #     include scope::MapLayers
+  #     include scope::MapLayers::ViewHelpers
+  #   end
+  # end
+  
   # extend the class that include this with the methods in ClassMethods
   def self.included(base)
     base.extend(ClassMethods)
@@ -343,3 +351,9 @@ EOS
   end
   
 end
+
+require 'map_layers/version'
+require 'map_layers/view_helpers'
+require 'map_layers/js_wrapper'
+require 'map_layers/open_layers'
+require 'map_layers/map'
