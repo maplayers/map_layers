@@ -353,7 +353,6 @@ EOS
 end
 
 require 'map_layers/version'
-require 'map_layers/view_helpers'
 require 'map_layers/js_wrapper'
 require 'map_layers/open_layers'
 require 'map_layers/map'
