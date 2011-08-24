@@ -2,7 +2,7 @@ require 'active_support/core_ext'
 
 module MapLayers # :nodoc:
 
-  # Include helpers in the given scope to AC and AV.
+  #Include helpers in the given scope to AC and AV.
   # def self.include_helpers(scope)
   #   ActiveSupport.on_load(:action_controller) do
   #     include scope::MapLayers

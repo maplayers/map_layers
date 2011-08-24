@@ -35,10 +35,10 @@ GEM
       activesupport (= 3.0.9)
     activesupport (3.0.9)
     arel (2.0.10)
-    autotest (4.4.6)
-      ZenTest (>= 4.4.1)
     autotest-notification (2.3.3)
       autotest-standalone (~> 4.5)
+    autotest-rails (4.1.0)
+      ZenTest
     autotest-standalone (4.5.5)
     builder (2.1.2)
     diff-lcs (1.1.2)
@@ -95,9 +95,10 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  autotest
   autotest-notification
+  autotest-rails
   map_layers!
   rails (>= 3.0.0)
   rake
+  rspec (~> 2.0.0)
   rspec-rails (~> 2.0.0)

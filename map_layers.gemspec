@@ -24,9 +24,10 @@ Gem::Specification.new do |s|
   else
     s.add_development_dependency(%q<rails>, [">= 3.0.0"])
   end
+  s.add_development_dependency(%q<rspec>, ["~> 2.0.0"])
   s.add_development_dependency(%q<rspec-rails>, ["~> 2.0.0"])
 
   s.add_development_dependency('rake')
-  s.add_development_dependency('autotest')
+  s.add_development_dependency('autotest-rails')
   s.add_development_dependency('autotest-notification') 		
 end
