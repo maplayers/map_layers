@@ -2,13 +2,16 @@
 
 MapLayers makes it easy to integrate a dynamic map in a Rails application. It can display map tiles and markers loaded from many different data sources.
 The included map viewer is OpenLayers[http://www.openlayers.org/].
-With MapLayers you can display and publish ActiveRecord models with geographic data.
-
+With MapLayers you can :  
+* display and publish ActiveRecord models with geographic data.
+* make your own map model
 
 ==Getting Started
 
 Install the latest version of the plugin:
-  ./script/plugin install git://github.com/pka/map_layers.git
+  sudo gem install map_layers
+Or with bundler add to your Gemfile : 
+gem "map_layers"
 
 Create a controller and a view
   ./script/generate controller Map index
@@ -154,7 +157,8 @@ And add a WFS layer to the map:
 The MapLayers plugin for Rails is released under the MIT license.
 
 ==Support
-For any questions, enhancement proposals, bug notifications or corrections visit http://rubyforge.org/projects/map-layers/ or send a mail to pka[at]sourcepole[dot]ch.
+Source hosted at <a href="https://github.com/ldonnet/map_layers">GitHub</a>.
+Report issues and feature requests to <a href="https://github.com/ldonnet/map_layers/issues">GitHub Issues</a>.
 
 
-<em>Copyright (c) 2008 Pirmin Kalberer, Sourcepole AG</em>
+<em>Copyright (c) 2011 Luc Donnet, Dryade</em>
