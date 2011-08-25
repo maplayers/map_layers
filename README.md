@@ -182,6 +182,7 @@ Create a model:
 ```
 
 Import some weather stations:
+
 ``` bash
   ./script/runner "Geonames::Weather.weather(:north => 44.1, :south => -9.9, :east => -22.4, :west => 55.2).each { |st| WeatherStation.create(:name => st.stationName, :geom => Point.from_x_y(st.lng, st.lat)) }"
 ```
@@ -198,6 +199,7 @@ Add a new controller with a map_layer:
 
 And add a WFS layer to the map:
 
+``` ruby
   page << map.add_layer(Layer::WFS.new("Weather Stations", "/weather_stations/wfs", {:typename => "weather_stations"}, {:featureClass => JsExpr.new("OpenLayers.Feature.WFS")}))
 ```
 
@@ -209,8 +211,9 @@ The MapLayers plugin for Rails is released under the MIT license.
 Development
 -----------
 
-Source hosted at [GitHub](https://github.com/ldonnet/map_layers).
-Report issues and feature requests to [GitHub Issues](https://github.com/ldonnet/map_layers/issues).
+* Source hosted at [GitHub](https://github.com/ldonnet/map_layers).
+* Report issues and feature requests to [GitHub Issues](https://github.com/ldonnet/map_layers/issues).
+
 Pull requests are very welcome! Make sure your patches are well tested. Please create a topic branch for every separate change you make. Please **do not change** the version in your pull-request.
 
 
