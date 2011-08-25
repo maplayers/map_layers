@@ -15,6 +15,7 @@ Or with bundler add to your Gemfile :
 gem "map_layers"
 
 Create a controller and a view
+
 ``` bash
   ./script/generate controller Map index
 ```
@@ -23,6 +24,7 @@ Initialization of the map
 -------------------------
 
 Add the map viewer initialization to the index action in the controller:
+
 ``` ruby  
   @map = MapLayers::Map.new("map") do |map, page|
     page << map.add_layer(MapLayers::GOOGLE)
@@ -117,12 +119,14 @@ Publish your own data
 ---------------------
 
 Create a model:
+
 ``` bash
   ./script/generate model --skip-timestamps --skip-fixture Place placeName:string countryCode:string postalCode:string lat:float lng:float
   rake db:migrate
 ```
 
 Import some places:
+
 ``` bash
   ./script/runner "Geonames::Postalcode.search('Sidney').each { |pc| Place.create(pc.attributes.slice('placeName', 'postalCode', 'countryCode', 'lat', 'lng')) }"
 ```
@@ -138,6 +142,7 @@ Add a new controller with a map_layer:
 ```
 
 And add a layer to the map:
+
 ``` ruby
   page << map.addLayer(Layer::GeoRSS.new("GeoRSS", "/places/georss"))
 ```
@@ -162,6 +167,7 @@ Using a spatial database requires GeoRuby[http://georuby.rubyforge.org/] and the
 ```
 
 Install spatial functions in your DB (e.g. Postgis 8.1):
+
 ``` bash
   DB=map_layers_dev
   createlang plpgsql $DB
@@ -169,6 +175,7 @@ Install spatial functions in your DB (e.g. Postgis 8.1):
 ```
 
 Create a model:
+
 ``` bash
   ./script/generate model --skip-timestamps --skip-fixture WeatherStation name:string geom:point
   rake db:migrate
@@ -202,8 +209,8 @@ The MapLayers plugin for Rails is released under the MIT license.
 Development
 -----------
 
-Source hosted at [GitHub][https://github.com/ldonnet/map_layers].
-Report issues and feature requests to [GitHub Issues][https://github.com/ldonnet/map_layers/issues].
+Source hosted at [GitHub](https://github.com/ldonnet/map_layers).
+Report issues and feature requests to [GitHub Issues](https://github.com/ldonnet/map_layers/issues).
 Pull requests are very welcome! Make sure your patches are well tested. Please create a topic branch for every separate change you make. Please **do not change** the version in your pull-request.
 
 
