@@ -6,7 +6,8 @@ With MapLayers you can :
 * display and publish ActiveRecord models with geographic data.
 * make your own map model
 
-==Getting Started
+Getting Started
+---------------
 
 Install the latest version of the plugin:
   sudo gem install map_layers
@@ -14,14 +15,20 @@ Or with bundler add to your Gemfile :
 gem "map_layers"
 
 Create a controller and a view
+``` bash
   ./script/generate controller Map index
+```
 
-===Initialization of the map
+Initialization of the map
+-------------------------
+
 Add the map viewer initialization to the index action in the controller:
+``` ruby  
   @map = MapLayers::Map.new("map") do |map, page|
     page << map.add_layer(MapLayers::GOOGLE)
     page << map.zoom_to_max_extent()
   end
+```
 
 Add this to the head of your view:
   <%= map_layers_includes :google => "ABQIAAAA3HdfrnxFAPWyY-aiJUxmqRTJQa0g3IQ9GZqIMmInSLzwtGDKaBQ0KYLwBEKSM7F9gCevcsIf6WPuIQ" %>
@@ -33,8 +40,12 @@ Put a map in the body your view:
 
 Test your basic map with <tt>http://localhost:3000/map</tt>
 
-===Multiple layers
+Multiple layers
+---------------
+
 Add a second layer and some more controls in the controller action:
+
+``` ruby
   @map = MapLayers::Map.new("map") do |map, page|
     page << map.add_layer(MapLayers::GOOGLE)
     page << map.add_layer(MapLayers::YAHOO_HYBRID)
@@ -45,6 +56,7 @@ Add a second layer and some more controls in the controller action:
 
     page << map.zoom_to_max_extent()
   end
+```
 
 Add the Yahoo Javascript library to the includes:
   <%= map_layers_includes :google => "ABQIAAAA3HdfrnxFAPWyY-aiJUxmqRTJQa0g3IQ9GZqIMmInSLzwtGDKaBQ0KYLwBEKSM7F9gCevcsIf6WPuIQ", :yahoo => "euzuro-openlayers" %>
@@ -56,7 +68,9 @@ To include all Javascript APIs, insert your API keys in the following statement:
   <%= map_layers_includes :google => "ABQIAAAA3HdfrnxFAPWyY-aiJUxmqRTJQa0g3IQ9GZqIMmInSLzwtGDKaBQ0KYLwBEKSM7F9gCevcsIf6WPuIQ", :multimap => "metacarta_04", :virtualearth => true, :yahoo => "euzuro-openlayers" %>
 
 
-===Updating the map
+Updating the map
+----------------
+
 Now we want to add some simple markers in an Ajax action.
 First we add a link in the view:
 
@@ -68,97 +82,129 @@ This requires including the prototype library:
 
 Then we include a marker layer in the map. Put this after the add_layer statements in the controller:
 
+``` ruby
   page.assign("markers", Layer::Markers.new('Markers'))
   page << map.addLayer(:markers)
+```
 
 and then we implement the Ajax action:
 
+``` ruby
   def add_marker
     render :update do |page|
       @markers = JsVar.new('markers')
       page << @markers.add_marker(OpenLayers::Marker.new(OpenLayers::LonLat.new(rand*50,rand*50)))
     end
   end
+```
 
 For accessing the marker layer in the Ajax action, we declare a Javascript variable with <tt>page.assign</tt> and access the variable later with the +JsVar+ wrapper.
 
 
-===OpenStreetMap in WGS84
+OpenStreetMap in WGS84
+----------------------
 
 To overlay data in WGS84 projection you can use a customized Open Street Map:
 
+``` ruby
   @map = MapLayers::Map.new("map") do |map, page|
     page << map.add_layer(MapLayers::GEOPOLE_OSM)
     page << map.zoom_to_max_extent()
   end
+```
 
-
-=Publish your own data
+Publish your own data
+---------------------
 
 Create a model:
+``` bash
   ./script/generate model --skip-timestamps --skip-fixture Place placeName:string countryCode:string postalCode:string lat:float lng:float
   rake db:migrate
+```
 
 Import some places:
+``` bash
   ./script/runner "Geonames::Postalcode.search('Sidney').each { |pc| Place.create(pc.attributes.slice('placeName', 'postalCode', 'countryCode', 'lat', 'lng')) }"
+```
 
 Add a new controller with a map_layer:
 
+``` ruby
   class PlacesController < ApplicationController
 
     map_layer :place, :text => :placeName
 
   end
+```
 
 And add a layer to the map:
-
+``` ruby
   page << map.addLayer(Layer::GeoRSS.new("GeoRSS", "/places/georss"))
-
+```
 
 Other types of served layers:
 
+``` ruby
   page << map.add_layer(Layer::GML.new("Places KML", "/places/kml", {:format=> JsExpr.new("OpenLayers.Format.KML")}))
 
   page << map.add_layer(Layer::WFS.new("Places WFS", "/places/wfs", {:typename => "places"}, {:featureClass => JsExpr.new("OpenLayers.Feature.WFS")}))
+```
 
 
-==Spatial database support
+Spatial database support
+------------------------
 
 Using a spatial database requires GeoRuby[http://georuby.rubyforge.org/] and the Spatial Adapter for Rails:
 
+``` bash
   sudo gem install georuby
   ruby script/plugin install svn://rubyforge.org/var/svn/georuby/SpatialAdapter/trunk/spatial_adapter
+```
 
 Install spatial functions in your DB (e.g. Postgis 8.1):
+``` bash
   DB=map_layers_dev
   createlang plpgsql $DB
   psql -d $DB -q -f /usr/share/postgresql-8.1-postgis/lwpostgis.sql
+```
 
 Create a model:
+``` bash
   ./script/generate model --skip-timestamps --skip-fixture WeatherStation name:string geom:point
   rake db:migrate
+```
 
 Import some weather stations:
+``` bash
   ./script/runner "Geonames::Weather.weather(:north => 44.1, :south => -9.9, :east => -22.4, :west => 55.2).each { |st| WeatherStation.create(:name => st.stationName, :geom => Point.from_x_y(st.lng, st.lat)) }"
+```
 
 Add a new controller with a map_layer:
 
+``` ruby
   class WeatherStationsController < ApplicationController
 
     map_layer :weather_stations, :geometry => :geom
 
   end
+```
 
 And add a WFS layer to the map:
 
   page << map.add_layer(Layer::WFS.new("Weather Stations", "/weather_stations/wfs", {:typename => "weather_stations"}, {:featureClass => JsExpr.new("OpenLayers.Feature.WFS")}))
+```
 
-==License
+License
+-------
+
 The MapLayers plugin for Rails is released under the MIT license.
 
-==Support
-Source hosted at <a href="https://github.com/ldonnet/map_layers">GitHub</a>.
-Report issues and feature requests to <a href="https://github.com/ldonnet/map_layers/issues">GitHub Issues</a>.
+Development
+-----------
+
+Source hosted at [GitHub][https://github.com/ldonnet/map_layers].
+Report issues and feature requests to [GitHub Issues][https://github.com/ldonnet/map_layers/issues].
+Pull requests are very welcome! Make sure your patches are well tested. Please create a topic branch for every separate change you make. Please **do not change** the version in your pull-request.
 
 
 <em>Copyright (c) 2011 Luc Donnet, Dryade</em>
