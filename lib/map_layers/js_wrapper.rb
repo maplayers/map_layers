@@ -125,6 +125,9 @@ module MapLayers
     def to_s
       @variable
     end
+    def to_str
+      @variable
+    end
 
     UNDEFINED = JsExpr.new("undefined")
   end
