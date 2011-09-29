@@ -1,4 +1,5 @@
 require 'map_layers/version'
+require 'map_layers/config'
 require 'map_layers/js_wrapper'
 require 'map_layers/open_layers'
 require 'map_layers/map'
