@@ -98,7 +98,7 @@ DEPENDENCIES
   autotest-notification
   autotest-rails
   map_layers!
-  rails (>= 3.0.0)
+  rails (>= 2.3.8)
   rake
   rspec (~> 2.0.0)
   rspec-rails (~> 2.0.0)

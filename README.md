@@ -1,4 +1,5 @@
-=MapLayers plugin for Rails
+MapLayers plugin for Rails
+--------------------------
 
 MapLayers makes it easy to integrate a dynamic map in a Rails application. It can display map tiles and markers loaded from many different data sources.
 The included map viewer is OpenLayers[http://www.openlayers.org/].
@@ -32,8 +33,10 @@ Add the map viewer initialization to the index action in the controller:
   end
 ```
 
+``` ruby 
 Add this to the head of your view:
   <%= map_layers_includes :google => "ABQIAAAA3HdfrnxFAPWyY-aiJUxmqRTJQa0g3IQ9GZqIMmInSLzwtGDKaBQ0KYLwBEKSM7F9gCevcsIf6WPuIQ" %>
+```
 
 Put a map in the body your view:
   <div id="map" style="width: 512px; height: 256px;"></div>
@@ -61,14 +64,19 @@ Add a second layer and some more controls in the controller action:
 ```
 
 Add the Yahoo Javascript library to the includes:
+
+``` ruby
   <%= map_layers_includes :google => "ABQIAAAA3HdfrnxFAPWyY-aiJUxmqRTJQa0g3IQ9GZqIMmInSLzwtGDKaBQ0KYLwBEKSM7F9gCevcsIf6WPuIQ", :yahoo => "euzuro-openlayers" %>
+```
 
 There are many more predefined layer types available:
 GOOGLE_SATELLITE, GOOGLE_HYBRID, GOOGLE_PHYSICAL, VE_ROAD, VE_AERIAL, VE_HYBRID, YAHOO, YAHOO_SATELLITE, YAHOO_HYBRID, MULTIMAP, OSM_MAPNIK, OSM_TELASCIENCE, GEOPOLE_OSM, NASA_GLOBAL_MOSAIC, BLUE_MARBLE_NG, WORLDWIND, WORLDWIND_URBAN, WORLDWIND_BATHY
 
 To include all Javascript APIs, insert your API keys in the following statement:
-  <%= map_layers_includes :google => "ABQIAAAA3HdfrnxFAPWyY-aiJUxmqRTJQa0g3IQ9GZqIMmInSLzwtGDKaBQ0KYLwBEKSM7F9gCevcsIf6WPuIQ", :multimap => "metacarta_04", :virtualearth => true, :yahoo => "euzuro-openlayers" %>
 
+``` ruby
+  <%= map_layers_includes :google => "ABQIAAAA3HdfrnxFAPWyY-aiJUxmqRTJQa0g3IQ9GZqIMmInSLzwtGDKaBQ0KYLwBEKSM7F9gCevcsIf6WPuIQ", :multimap => "metacarta_04", :virtualearth => true, :yahoo => "euzuro-openlayers" %>
+```
 
 Updating the map
 ----------------
@@ -76,11 +84,15 @@ Updating the map
 Now we want to add some simple markers in an Ajax action.
 First we add a link in the view:
 
+``` ruby
   <%= link_to_remote "Add marker", :url => { :action => "add_marker" } %>
+```
 
 This requires including the prototype library:
 
+``` ruby
   <%= javascript_include_tag 'prototype' %>
+```
 
 Then we include a marker layer in the map. Put this after the add_layer statements in the controller:
 

@@ -1,8 +1,4 @@
-require 'map_layers'
-require 'map_layers/view_helpers'
+require File.join(File.dirname(__FILE__), "lib", "map_layers")
+require 'map_layers/railtie'
 
-ActionController::Base.send(:include, MapLayers)
-ActionView::Base.send(:include, MapLayers)
-ActionView::Base.send(:include, MapLayers::ViewHelpers)
-
-Mime::Type.register "application/vnd.google-earth.kml+xml", :kml
+MapLayers::Railtie.insert
