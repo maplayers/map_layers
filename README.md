@@ -1,10 +1,10 @@
 # MapLayers
 
 MapLayers makes it easy to integrate a dynamic map in a Rails application. It can display map tiles and markers loaded from many different data sources.
-The included map viewer is OpenLayers[http://www.openlayers.org/].
+The included map viewer is [OpenLayers](http://www.openlayers.org/).
 With MapLayers you can :  
-* display and publish ActiveRecord models with geographic data.
-* make your own map model
+- display and publish ActiveRecord models with geographic data.
+- make your own map model
 
 Getting Started
 ---------------
