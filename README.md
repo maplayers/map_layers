@@ -1,5 +1,4 @@
-MapLayers plugin for Rails
---------------------------
+# MapLayers plugin for Rails
 
 MapLayers makes it easy to integrate a dynamic map in a Rails application. It can display map tiles and markers loaded from many different data sources.
 The included map viewer is OpenLayers[http://www.openlayers.org/].
