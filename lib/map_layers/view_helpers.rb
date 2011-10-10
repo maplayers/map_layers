@@ -27,7 +27,7 @@ module MapLayers
       if options.has_key?(:img_path)
         img_path = options[:img_path]
       end
-      if RAILS_ENV == "development" && File.exist?(File.join(RAILS_ROOT, 'public/javascripts/lib/OpenLayers.js'))
+      if Rails.env == "development" && File.exist?(File.join(Rails.root, 'public/javascripts/lib/OpenLayers.js'))
         html << '<script src="/javascripts/lib/Firebug/firebug.js"></script>'
         html << '<script src="/javascripts/lib/OpenLayers.js"></script>'
       else
@@ -36,7 +36,7 @@ module MapLayers
 
 
       html << stylesheet_link_tag("map")
-      img_path=(Pathname(ActionController::Base.relative_url_root||"") +img_path).cleanpath.to_s
+      img_path=(Pathname(ENV['RAILS_RELATIVE_URL_ROOT']||"") +img_path).cleanpath.to_s
       html << javascript_tag("OpenLayers.ImgPath='"+ img_path  + "/';")
       proxy = options.has_key?(:proxy) ? options[:proxy] : controller.controller_name
       html << javascript_tag("OpenLayers.ProxyHost='/#{proxy}/proxy?url=';")
