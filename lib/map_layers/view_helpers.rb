@@ -27,7 +27,7 @@ module MapLayers
       if options.has_key?(:img_path)
         img_path = options[:img_path]
       end
-      if RAILS_ENV == "development" && File.exist?(File.join(RAILS_ROOT, 'public/javascripts/lib/OpenLayers.js'))
+      if Rails.env == "development" && File.exist?(File.join(Rails.root, 'public/javascripts/lib/OpenLayers.js'))
         html << '<script src="/javascripts/lib/Firebug/firebug.js"></script>'
         html << '<script src="/javascripts/lib/OpenLayers.js"></script>'
       else
