@@ -222,8 +222,8 @@ The MapLayers plugin for Rails is released under the MIT license.
 Development
 -----------
 
-* Source hosted at [GitHub](https://github.com/ldonnet/map_layers).
-* Report issues and feature requests to [GitHub Issues](https://github.com/ldonnet/map_layers/issues).
+* Source hosted at [GitHub](https://github.com/dryade/map_layers).
+* Report issues and feature requests to [GitHub Issues](https://github.com/dryade/map_layers/issues).
 
 Pull requests are very welcome! Make sure your patches are well tested. Please create a topic branch for every separate change you make. Please **do not change** the version in your pull-request.
 

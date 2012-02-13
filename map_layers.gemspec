@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Luc Donnet", "Alban Peignier", "Pirmin Kalberer"] 
   s.email       = ["luc.donnet@free.fr", "alban.peignier@free.fr", "pka@sourcepole.ch"]
-  s.homepage    = "http://github.com/ldonnet/map_layers"
+  s.homepage    = "http://github.com/dryade/map_layers"
   s.summary     = %q{library dedicated to generate OSM javascript}
   s.description = %q{library dedicated to generate OSM javascript}
 
