@@ -12,7 +12,8 @@ module MapLayers
       options.assert_valid_keys(:google, :multimap, :openstreetmap, :virtualearth, :yahoo, :proxy,:img_path)
       html = ''
       if options.has_key?(:google)
-        html << "<script type=\"text/javascript\" src=\"http://maps.google.com/maps?file=api&amp;v=2&amp;key=#{options[:google]}\"></script>"
+        #html << "<script type=\"text/javascript\" src=\"http://maps.google.com/maps?file=api&amp;v=2&amp;key=#{options[:google]}\"></script>"
+        html << "<script type=\"text/javascript\" src=\"http://maps.google.com/maps/api/js?v=3&amp;sensor=false\"></script>"
       end
       if options.has_key?(:multimap)
         html << "<script type=\"text/javascript\" src=\"http://clients.multimap.com/API/maps/1.1/#{options[:multimap]}\"></script>"
@@ -23,7 +24,7 @@ module MapLayers
       if options.has_key?(:yahoo)
         html << "<script type=\"text/javascript\" src=\"http://api.maps.yahoo.com/ajaxymap?v=3.0&appid=#{options[:yahoo]}\"></script>"
       end
-      img_path = '/images/OpenLayers/'
+      img_path = '/assets/OpenLayers/'
       if options.has_key?(:img_path)
         img_path = options[:img_path]
       end
@@ -44,13 +45,13 @@ module MapLayers
       end
 
 
-      html << stylesheet_link_tag("map")
+      #html << stylesheet_link_tag("map")
       img_path=(Pathname(rails_relative_url_root||"") +img_path).cleanpath.to_s
       html << javascript_tag("OpenLayers.ImgPath='"+ img_path  + "/';")
       proxy = options.has_key?(:proxy) ? options[:proxy] : controller.controller_name
       html << javascript_tag("OpenLayers.ProxyHost='/#{proxy}/proxy?url=';")
 
-      html
+      html.html_safe
     end
   end
 
