@@ -82,7 +82,7 @@ module MapLayers
       html << @js.to_s
       html << "</script>\n" if !no_script_tag
 
-      html
+      html.html_safe
     end
   end
 
