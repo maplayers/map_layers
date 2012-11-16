@@ -84,14 +84,19 @@ module MapLayers
       marker_offset = nil if marker_sizes.nil?
 
       #size = OpenLayers.Size(21,25);
-      size = ", new OpenLayers.Size(#{marker_sizes[0]}, #{marker_sizes[1]})" unless marker_sizes.nil?
-      offset = ", new OpenLayers.Pixel(#{marker_offset[0]}, #{marker_offset[1]})"
+      opts = [ "'#{url}'" ]
+      opts << "new OpenLayers.Size(#{marker_sizes[0]}, #{marker_sizes[1]})" unless marker_sizes.nil?
+      opts << "new OpenLayers.Pixel(#{marker_offset[0]}, #{marker_offset[1]})"
       #offset = OpenLayers.Pixel(-(size.w/2), -size.h);
       #icon = new OpenLayers.Icon('http://www.openlayers.org/dev/img/marker.png',size,offset));
 
       #icon = "new OpenLayers.Icon('#{icon_url}')" unless icon_url.nil?
 
-      JsExpr.new("new OpenLayers.Icon('#{url}'#{size}#{offset})")
+      JsExpr.new("new OpenLayers.Icon(#{opts.join(',')})")
+
+      #size = ", new OpenLayers.Size(#{marker_sizes[0]}, #{marker_sizes[1]})" unless marker_sizes.nil?
+      #offset = ", new OpenLayers.Pixel(#{marker_offset[0]}, #{marker_offset[1]})"
+      #JsExpr.new("new OpenLayers.Icon('#{url}'#{size}#{offset})")
     end
 
     def create_marker(lat, lng, options = {})
