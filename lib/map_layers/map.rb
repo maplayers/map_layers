@@ -86,7 +86,7 @@ module MapLayers
       #size = OpenLayers.Size(21,25);
       opts = [ "'#{url}'" ]
       opts << "new OpenLayers.Size(#{marker_sizes[0]}, #{marker_sizes[1]})" unless marker_sizes.nil?
-      opts << "new OpenLayers.Pixel(#{marker_offset[0]}, #{marker_offset[1]})"
+      opts << "new OpenLayers.Pixel(#{marker_offset[0]}, #{marker_offset[1]})" unless marker_offset.nil?
       #offset = OpenLayers.Pixel(-(size.w/2), -size.h);
       #icon = new OpenLayers.Icon('http://www.openlayers.org/dev/img/marker.png',size,offset));
 
