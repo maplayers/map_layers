@@ -55,12 +55,21 @@ module MapLayers
       @variable = map
       @options = {:theme => false}.merge(options)
       @js = JsGenerator.new
+      @icons = []
       yield(self, @js) if block_given?
     end
 
     #Outputs in JavaScript the creation of a OpenLayers.Map object
     def create
       "new OpenLayers.Map('#{@container}', #{JsWrapper::javascriptify_variable(@options)})"
+    end
+
+    def add_icon(name, url, options = {})
+      @icons << {:name => name, :url => url, :options => options} unless @icons.any? { |ico| ico[:name] == name }
+    end
+
+    def create_icons
+      html = ""
     end
 
     def create_icon(url, options = {})
