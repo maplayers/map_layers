@@ -46,6 +46,9 @@ module MapLayers
     "http://worldwind25.arc.nasa.gov/tile/tile.aspx", 36, 4, {:T => "bmng.topo.bathy.200406"}, {:tileSize => OpenLayers::Size.new(512,512)})
 
 
+#      map.setCenter(new OpenLayers.LonLat(77.6, 21.31), 4);
+
+
   #Map viewer main class
   class Map
     include JsWrapper
@@ -55,7 +58,7 @@ module MapLayers
       @variable = map
       @options = {:theme => false}.merge(options)
       @js = JsGenerator.new
-      @icons = []
+#      @icons = []
       yield(self, @js) if block_given?
     end
 
@@ -65,14 +68,11 @@ module MapLayers
     end
 
     def add_icon(name, url, options = {})
-      @icons << {:name => name, :url => url, :options => options} unless @icons.any? { |ico| ico[:name] == name }
+      name_js = name.to_s.parameterize
+      "#{name_js} = #{create_js_icon(url, options)}"
     end
 
-    def create_icons
-      html = ""
-    end
-
-    def create_icon(url, options = {})
+    def create_js_icon(url, options = {})
       height = options[:height] || nil
       width = options[:width] || nil
       offset_height = options[:offset_height] || -height.to_i
@@ -83,39 +83,21 @@ module MapLayers
 
       marker_offset = nil if marker_sizes.nil?
 
-      #size = OpenLayers.Size(21,25);
       opts = [ "'#{url}'" ]
       opts << "new OpenLayers.Size(#{marker_sizes[0]}, #{marker_sizes[1]})" unless marker_sizes.nil?
       opts << "new OpenLayers.Pixel(#{marker_offset[0]}, #{marker_offset[1]})" unless marker_offset.nil?
-      #offset = OpenLayers.Pixel(-(size.w/2), -size.h);
-      #icon = new OpenLayers.Icon('http://www.openlayers.org/dev/img/marker.png',size,offset));
 
-      #icon = "new OpenLayers.Icon('#{icon_url}')" unless icon_url.nil?
-
-      JsExpr.new("new OpenLayers.Icon(#{opts.join(',')})")
-
-      #size = ", new OpenLayers.Size(#{marker_sizes[0]}, #{marker_sizes[1]})" unless marker_sizes.nil?
-      #offset = ", new OpenLayers.Pixel(#{marker_offset[0]}, #{marker_offset[1]})"
-      #JsExpr.new("new OpenLayers.Icon('#{url}'#{size}#{offset})")
-    end
-
-    def create_marker(lat, lng, options = {})
-      icon = options[:icon] || nil
-      without_transform = options[:without_transform] || false
-
-      transform = without_transform ? "" :  ".transform(new OpenLayers.Projection(\"EPSG:4326\"), #{@container}.getProjectionObject())" 
-
-      #OpenLayers::Marker.new(
-      #  OpenLayers::LonLat.new(lat, lng).transform(
-      #    OpenLayers::Projection.new("EPSG:4326"), map.getProjectionObject()), icon )
-      
-      JsExpr.new("new OpenLayers.Marker(
-        new OpenLayers.LonLat(#{lat}, #{lng})#{transform}#{", #{icon}" unless icon.nil?} )")
+      "new OpenLayers.Icon(#{opts.join(',')})"
     end
 
     def register_event(marker, event, &block)
-      #nm.events.register('mousedown', marker, function(evt) { alert(this.icon.url); OpenLayers.Event.stop(evt) })
       "#{marker}.events.register('mousedown', marker, function(evt) { alert(this.icon.url); OpenLayers.Event.stop(evt) })"
+    end
+
+    def create_markers(name, options = {}, &block)
+      markers = Markers.new(@container, name, options)
+      yield markers if block_given?
+      markers.to_html.html_safe
     end
 
     #Outputs the initialization code for the map
@@ -141,12 +123,63 @@ module MapLayers
     end
   end
 
-  class Marker
-    def initialize(name)
-      
+  class Markers
+    attr_reader :map, :name, :title, :markers
+
+    def initialize(map, name, options = {})
+      name_js = name.to_s.parameterize
+      title = options[:title] || name_js
+
+      @map, @name, @title = map, name_js, title
+      @markers = []
     end
 
-    def default_onclick
+    def add_marker(lat, lng, options = {}, &block)
+      puts "ADDING : #{lat} #{lng}"
+      marker = Marker.new(map, "#{name}_marker#{@markers.count}", lat, lng, options)
+      yield marker if block_given?
+      @markers << marker
+    end
+
+    def to_html
+      html = ["#{name} = new OpenLayers.Layer.Markers(\"#{title}\")"]
+      #html << self.instance_eval(&block) if block_given?
+      @markers.each do |marker|
+        html << marker.to_html
+        html << "#{name}.addMarker(#{marker.name})"
+      end
+      html << "#{map}.addLayer(#{name})"
+      html.join(";\n")
+    end
+
+  end
+
+  class Marker
+    attr_reader :map, :name, :lat, :lng, :projection, :icon, :events
+
+    def initialize(map, name, lat, lng, options = {})
+      name_js = name.to_s.parameterize
+      without_transform = options[:without_transform] || false
+      projection = options[:projection] || without_transform ? nil : "EPSG:4326"
+      @icon = options[:icon] || nil
+      @map, @name, @projection = map, name_js, projection
+      @lat, @lng = lat, lng
+      @events = []
+    end
+
+    def register_event(event, fct)
+      @events << {:event => event, :fct => fct} #capture(&block)}
+    end
+
+    def to_html
+      transform = projection.nil? ? "" :  ".transform(new OpenLayers.Projection(\"#{projection}\"), #{map}.getProjectionObject())" 
+
+      html = []
+      html << "#{name} = new OpenLayers.Marker( new OpenLayers.LonLat(#{lat}, #{lng})#{transform}#{", #{icon}.clone()" unless icon.nil?} )"
+      @events.each do |evt|
+        html << "#{name}.events.register('#{evt[:event]}', #{name}, #{evt[:fct]})"
+      end
+      html.join(";\n")
     end
   end
 
