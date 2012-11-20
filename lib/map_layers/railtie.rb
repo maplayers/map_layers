@@ -12,27 +12,21 @@ module MapLayers
         MapLayers::Railtie.insert
       end
 
-puts "toto"
-      config.before_configuration do
-puts "is"
-        if ::Rails.root.join("public/javascripts/openlayers.min.js").exist?
-          jq_defaults = %w(openlayers)
-          jq_defaults.map!{|a| a + ".min" } if ::Rails.env.production? || ::Rails.env.test?
-        else
-          jq_defaults = ::Rails.env.production? || ::Rails.env.test? ? %w(openlayers.min) : %w(openlayers)
-        end
-
-        # Merge the jQuery scripts, remove the Prototype defaults and finally add 'jquery_ujs'
-        # at the end, because load order is important
-        if config.action_view.javascript_expansions
-puts "here #{jq_defaults}"
-          config.action_view.javascript_expansions[:defaults] |= jq_defaults
-puts "#{config.action_view.javascript_expansions[:defaults]}"
-        end
-
-      end
+#      config.before_configuration do
+#        if ::Rails.root.join("public/javascripts/openlayers.debug.js").exist?
+#          openlayers_defaults = %w(OpenLayers)
+#          openlayers_defaults.map!{|a| a + ".debug" } if ::Rails.env.development?
+#        else
+#          openlayers_defaults = ::Rails.env.production? || ::Rails.env.test? ? %w(openlayers.min) : %w(openlayers)
+#        end
+#
+#        # Merge the openlayers script # at the end, because load order is important
+#        if config.action_view.javascript_expansions
+#          config.action_view.javascript_expansions[:defaults] |= openlayers_defaults
+#        end
+#
+#      end
     end
-
   end
 
   class Railtie

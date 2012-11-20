@@ -100,6 +100,27 @@ module MapLayers
       markers.to_html.html_safe
     end
 
+    def add_vector_layer(name, url, options = {})
+      projection = options[:projection] || JsExpr.new("#{@container}.displayProjection")
+      format = options[:format] || nil
+
+      JsVar.new(@container).add_layer(
+        OpenLayers::Layer::Vector.new(name, {
+          :projection => projection,
+          :strategies => [OpenLayers::Strategy::Fixed.new],
+          :protocol => OpenLayers::Protocol::HTTP.new({
+            :url => url,
+            :format => format
+          })
+        })
+      )
+    end
+
+    def add_kml_vector_layer(name, url, options = {})
+      add_vector_layer(name, url, options.merge(
+        :format => OpenLayers::Format::KML.new({:extractStyles => true, :extractAttributes => true})))
+    end
+
     #Outputs the initialization code for the map
     def to_html(options = {})
       no_script_tag = options[:no_script_tag]
@@ -134,7 +155,7 @@ module MapLayers
       @markers = []
     end
 
-    def add_marker(lat, lng, options = {}, &block)
+    def create_marker(lat, lng, options = {}, &block)
       puts "ADDING : #{lat} #{lng}"
       marker = Marker.new(map, "#{name}_marker#{@markers.count}", lat, lng, options)
       yield marker if block_given?

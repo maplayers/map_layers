@@ -37,12 +37,12 @@ module MapLayers
         rails_root = Rails.root
         rails_relative_url_root = controller.config.relative_url_root
       end
-      if rails_env == "development" && File.exist?(File.join( rails_root, 'public/javascripts/lib/OpenLayers.js'))
-        html << '<script src="/javascripts/lib/Firebug/firebug.js"></script>'
-        html << '<script src="/javascripts/lib/OpenLayers.js"></script>'
-      else
-        html << javascript_include_tag('OpenLayers')
-      end
+#      if rails_env == "development" && File.exist?(File.join( rails_root, 'public/javascripts/lib/OpenLayers.js'))
+#        html << '<script src="/javascripts/lib/Firebug/firebug.js"></script>'
+#        html << '<script src="/javascripts/lib/OpenLayers.js"></script>'
+#      else
+#        html << javascript_include_tag('OpenLayers')
+#      end
 
 
       #html << stylesheet_link_tag("map")

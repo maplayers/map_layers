@@ -8,18 +8,25 @@ xml.kml(:xmlns=>"http://earth.google.com/kml/2.0") do
     end
 
     @features.each do |feature|
-    # kml(plaque, xml)
-      xml.placemark do
-        #xml.name @folder_name
-        xml.description do
-          xml.cdata! feature.text
-        end
-        xml.point do
-          xml.coordinates "#{feature.x}, #{feature.y}, 0"
+      unless feature.latitude.nil? || feature.longitude.nil?
+        xml.placemark do
+          # place name
+          name = feature.respond_to?('name') ? feature.name : "#{dom_id(feature)}"
+          xml.name "#{name}"
+
+          # place description
+          xml.description do
+            xml.cdata! "#{feature.description}"
+          end
+
+          # place geoloc
+          altitude = feature.respond_to?('altitude') ? feature.altitude : 0
+          xml.point do
+            xml.coordinates "#{feature.latitude}, #{feature.longitude}, #{altitude}"
+          end
         end
       end
     end
 
   end
 end
-

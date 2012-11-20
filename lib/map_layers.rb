@@ -4,6 +4,7 @@ require 'map_layers/js_wrapper'
 require 'map_layers/open_layers'
 require 'map_layers/map'
 require 'map_layers/railtie'
+require 'map_layers/engine'
 
 module MapLayers # :nodoc:
   
