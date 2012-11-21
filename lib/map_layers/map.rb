@@ -100,25 +100,76 @@ module MapLayers
       markers.to_html.html_safe
     end
 
-    def add_vector_layer(name, url, options = {})
+    def create_vector_layer(name, url, options = {})
       projection = options[:projection] || JsExpr.new("#{@container}.displayProjection")
       format = options[:format] || nil
 
-      JsVar.new(@container).add_layer(
-        OpenLayers::Layer::Vector.new(name, {
-          :projection => projection,
-          :strategies => [OpenLayers::Strategy::Fixed.new],
-          :protocol => OpenLayers::Protocol::HTTP.new({
-            :url => url,
-            :format => format
-          })
+      OpenLayers::Layer::Vector.new(name, {
+        :projection => projection,
+        :strategies => [OpenLayers::Strategy::Fixed.new],
+        :protocol => OpenLayers::Protocol::HTTP.new({
+          :url => url,
+          :format => format
         })
-      )
+      })
+    end
+
+    def add_select_feature_control(layer, options = {})
+      #select = new OpenLayers.Control.SelectFeature(sundials);
+      #
+      #sundials.events.on({
+      #    "featureselected": onFeatureSelect,
+      #    "featureunselected": onFeatureUnselect
+      #});
+      #
+      #map.addControl(select);
+      #select.activate();
+
+      layer_js = JsVar.new(layer)
+      select = OpenLayers::Control::SelectFeature.new(layer_js)
+      select_var = "#{layer.parameterize}_select"
+      select_var_js = JsVar.new(select_var)
+
+      html = []
+      html << "var #{select_var} = #{JsWrapper::javascriptify_variable(select)}"
+      html << JsVar.new("#{layer}.events").on({
+        :featureselected => JsExpr.new('onFeatureSelect'),
+        :featureunselected => JsExpr.new('onFeatureUnselect')
+      })
+      #html << "#{layer}.events.on({
+      #  \"featureselected\": onFeatureSelect,
+      #  \"featureunselected\": onFeatureUnselect
+      #})"
+      html << JsVar.new(@container).add_control(select_var_js)
+      html << select_var_js.activate
+
+      html.join(";\n")
+    end
+
+    def add_kml_vector_layer_old(name, url, options = {})
+      layer = create_vector_layer(name, url, options.merge(
+          :format => OpenLayers::Format::KML.new({:extractStyles => true, :extractAttributes => true})))
+      JsVar.new(@container).add_layer(layer)
     end
 
     def add_kml_vector_layer(name, url, options = {})
-      add_vector_layer(name, url, options.merge(
-        :format => OpenLayers::Format::KML.new({:extractStyles => true, :extractAttributes => true})))
+      no_global = options[:no_global]
+      no_select = options[:no_select]
+      html = []
+
+      layer = create_vector_layer(name, url, options.merge(
+          :format => OpenLayers::Format::KML.new({:extractStyles => true, :extractAttributes => true})))
+
+      layer_name = name.parameterize
+      layer_js = JsVar.new(layer_name)
+puts "layer_js : #{layer_js}"
+      #expr = JsVar.new(@container).add_layer(layer)
+      JsExpr.new(expr)
+      #"#{name.parameterize} = #{JsExpr.new(layer)};"
+      html << "var #{layer_js} = #{JsWrapper::javascriptify_variable(layer)}"
+      html << JsVar.new(@container).add_layer(layer_js)
+
+      html.join(";\n")
     end
 
     #Outputs the initialization code for the map
