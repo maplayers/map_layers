@@ -1,0 +1,6 @@
+# replace url for rails assets
+for ii in vendor/assets/stylesheets/*css
+do
+  sed -e 's/url(["]\{0,1\}\([^")]*\)["]\{0,1\})/url(<%= image_path("\1") %>)/g' -i $ii
+done
+
