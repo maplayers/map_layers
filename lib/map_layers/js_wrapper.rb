@@ -164,17 +164,19 @@ module MapLayers
   end
 
   class JsGenerator # :nodoc:
-    def initialize()
-      @lines = ''
+    def initialize(options = {})
+      @included = options[:included] || false
+      @lines = []
     end
     def <<(javascript)
-      @lines << (javascript.is_a?(JsWrapper) ? javascript.to_javascript : javascript) << ";\n"
+      @lines << (javascript.is_a?(JsWrapper) ? javascript.to_javascript : javascript)
     end
-    def assign(variable, value)
-      @lines << "#{variable} = #{JsWrapper::javascriptify_variable(value)};\n"
+    def assign(variable, value, options = {})
+      declare = options[:declare] || false
+      @lines << "#{declare ? 'var ' : ''}#{variable} = #{JsWrapper::javascriptify_variable(value)}"
     end
     def to_s
-      @lines
+      "#{@lines.join(";\n")}#{@included ? '' : ";\n"}"
     end
   end
 

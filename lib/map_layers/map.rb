@@ -115,56 +115,46 @@ module MapLayers
     end
 
     def add_select_feature_control(layer, options = {})
-      select_var = "#{layer.parameterize}_select"
-      feature_handler_var = "#{layer.parameterize}_handler"
-      featureselected = options[:featureselected] || JsExpr.new("#{feature_handler_var}.onFeatureSelect")
-      featureunselected = options[:featureunselected] || JsExpr.new("#{feature_handler_var}.onFeatureUnselect")
+      select_name = "#{layer.parameterize}_select"
+      feature_handler_name = "#{layer.parameterize}_handler"
+      featureselected = options[:featureselected] || JsExpr.new("#{feature_handler_name}.onFeatureSelect")
+      featureunselected = options[:featureunselected] || JsExpr.new("#{feature_handler_name}.onFeatureUnselect")
       custom_handler = ! (options[:featureselected].nil? && options[:featureunselected].nil?)
 
-      layer_js = JsVar.new(layer)
-      select = OpenLayers::Control::SelectFeature.new(layer_js)
-      select_var_js = JsVar.new(select_var)
+      js = JsGenerator.new(:included => true)
 
-      html = []
-      html << "var #{select_var} = #{JsWrapper::javascriptify_variable(select)}"
+      select_js = JsVar.new(select_name)
+
+      js.assign(select_name, OpenLayers::Control::SelectFeature.new(JsVar.new(layer)), :declare => true)
       unless custom_handler
-        html << "var #{feature_handler_var} = new MapLayers.SimpleFeatureHandler(#{@container}, #{select_var})"
+        js.assign(feature_handler_name, JsExpr.new("new MapLayers.SimpleFeatureHandler(#{@container}, #{select_name})"), :declare => true)
       end
-      html << JsVar.new("#{layer}.events").on({
+      js << JsVar.new("#{layer}.events").on({
         :featureselected => featureselected,
         :featureunselected => featureunselected,
-        :scope => JsVar.new(feature_handler_var)
+        :scope => JsVar.new(feature_handler_name)
       })
-      html << JsVar.new(@container).add_control(select_var_js)
-      html << select_var_js.activate
+      js << JsVar.new(@container).add_control(select_js)
+      js << select_js.activate
 
-      html.join(";\n")
-    end
-
-    def add_kml_vector_layer_old(name, url, options = {})
-      layer = create_vector_layer(name, url, options.merge(
-          :format => OpenLayers::Format::KML.new({:extractStyles => true, :extractAttributes => true})))
-      JsVar.new(@container).add_layer(layer)
+      js.to_s.html_safe
     end
 
     def add_kml_vector_layer(name, url, options = {})
       no_global = options[:no_global]
       no_select = options[:no_select]
-      html = []
+      layer_name = name.parameterize
 
+      js = JsGenerator.new(:included => true)
       layer = create_vector_layer(name, url, options.merge(
           :format => OpenLayers::Format::KML.new({:extractStyles => true, :extractAttributes => true})))
 
-      layer_name = name.to_s.parameterize
-      layer_js = JsVar.new(layer_name)
-puts "layer_js : #{layer_js}"
-      #expr = JsVar.new(@container).add_layer(layer)
-      JsExpr.new(expr)
-      #"#{name.parameterize} = #{JsExpr.new(layer)};"
-      html << "var #{layer_js} = #{JsWrapper::javascriptify_variable(layer)}"
-      html << JsVar.new(@container).add_layer(layer_js)
+      js.assign(layer_name, layer, :declare => !no_global)
+      js << JsVar.new(@container).add_layer(JsVar.new(layer_name))
+ 
+      js << add_select_feature_control(name) unless no_select
 
-      html.join(";\n")
+      js.to_s.html_safe
     end
 
     #Outputs the initialization code for the map
