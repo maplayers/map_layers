@@ -55,6 +55,7 @@ module MapLayers
 
     def initialize(map, options = {}, &block)
       @container = map
+      @handler = "#{map}_handler"
       @variable = map
       @options = {:theme => false}.merge(options)
       @js = JsGenerator.new
@@ -114,45 +115,49 @@ module MapLayers
       })
     end
 
-    def add_select_feature_control(layer, options = {})
-      select_name = "#{layer.parameterize}_select"
-      feature_handler_name = "#{layer.parameterize}_handler"
-      featureselected = options[:featureselected] || JsExpr.new("#{feature_handler_name}.onFeatureSelect")
-      featureunselected = options[:featureunselected] || JsExpr.new("#{feature_handler_name}.onFeatureUnselect")
-      custom_handler = ! (options[:featureselected].nil? && options[:featureunselected].nil?)
+    def add_map_handler(layer, options = {})
+      default_control = options[:default_control] || 'select'
+      default_control = 'select' unless %w(select point path polygon drag).include?(default_control)
 
       js = JsGenerator.new(:included => true)
 
-      select_js = JsVar.new(select_name)
-
-      js.assign(select_name, OpenLayers::Control::SelectFeature.new(JsVar.new(layer)), :declare => true)
-      unless custom_handler
-        js.assign(feature_handler_name, JsExpr.new("new MapLayers.SimpleFeatureHandler(#{@container}, #{select_name})"), :declare => true)
-      end
-      js << JsVar.new("#{layer}.events").on({
-        :featureselected => featureselected,
-        :featureunselected => featureunselected,
-        :scope => JsVar.new(feature_handler_name)
-      })
-      js << JsVar.new(@container).add_control(select_js)
-      js << select_js.activate
+      js.assign(@handler, JsExpr.new("new MapLayers.SimpleMapHandler(#{@container})"), :declare => true)
+      js << JsVar.new(@handler).initializeControls(layer)
+      js << JsVar.new(@handler).toggleControl(layer, default_control)
 
       js.to_s.html_safe
     end
 
-    def add_kml_vector_layer(name, url, options = {})
+
+    def replace_vector_layer(name, url, options = {})
+      js = JsGenerator.new(:included => true)
+      #map_handler.destroyLayer('pikts');
+      js << JsVar.new(@handler).destroyLayer(name)
+      js << add_vector_layer(name, url, options)
+
+      js.to_s.html_safe
+    end
+
+    def add_vector_layer(name, url, options = {})
       no_global = options[:no_global]
-      no_select = options[:no_select]
+      no_controls = options[:no_controls]
+      format = options[:format] || :kml
       layer_name = name.parameterize
 
       js = JsGenerator.new(:included => true)
+
+      frmt = case format
+      when :georss
+      else # kml is the default
+        OpenLayers::Format::KML.new({:extractStyles => true, :extractAttributes => true})
+      end
+
       layer = create_vector_layer(name, url, options.merge(
-          :format => OpenLayers::Format::KML.new({:extractStyles => true, :extractAttributes => true})))
+          :format => frmt))
 
       js.assign(layer_name, layer, :declare => !no_global)
       js << JsVar.new(@container).add_layer(JsVar.new(layer_name))
- 
-      js << add_select_feature_control(name) unless no_select
+      js << add_map_handler(name, options) unless no_controls
 
       js.to_s.html_safe
     end

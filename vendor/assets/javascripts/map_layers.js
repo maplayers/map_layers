@@ -1,7 +1,9 @@
-// simple handler for popup window
+// simple handler
 var MapLayers = {};
-MapLayers.SimpleFeatureHandler = function(map, sel) {
+MapLayers.SimpleMapHandler = function(map) {
   this.map = map;
+  this.controls = {};
+  this.dragCallbacks = {};
 
   this.onFeatureSelect = function(event) {
     //var feature = event.feature;
@@ -23,7 +25,6 @@ MapLayers.SimpleFeatureHandler = function(map, sel) {
     feature.popup = popup;
     this.map.addPopup(popup);
   }
-
   this.removeFeaturePopup = function(feature) {
     if(feature.popup) {
       this.map.removePopup(feature.popup);
@@ -31,14 +32,13 @@ MapLayers.SimpleFeatureHandler = function(map, sel) {
       delete feature.popup;
     }
   }
-
   this.toggleFeaturePopup = function(feature) {
     if(feature.popup) { this.removeFeaturePopup(feature); }
     else { this.addFeaturePopup(feature); }
   }
 
-  this.toggleLayerFeaturePopup = function(layer, feature_nb) {
-    feature = this.getLayerFeature(layer, feature_nb);
+  this.toggleLayerFeaturePopup = function(layer, feature_id) {
+    feature = this.getLayerFeatureById(layer, feature_id);
     this.toggleFeaturePopup(feature);
   }
 
@@ -54,25 +54,138 @@ MapLayers.SimpleFeatureHandler = function(map, sel) {
     return feature;
   }
 
-  this.setCenterOnFeature = function(layerName, feature_nb, zoom) {
-    zoom = zoom || 5
+  this.getLayerFeatureById = function(layerName, feature_id) {
     var layer = this.map.getLayersByName(layerName)[0];
-    var lonLat = layer.features[feature_nb].geometry.bounds.centerLonLat
+    var feature = null;
 
-    if (lonLat)
+    for(fid in layer.features)
     {
-      this.map.setCenter(lonLat, zoom);
+      feat = layer.features[fid];
+      if (feat.data.id == feature_id)
+      {
+        feature = feat;
+        break;
+      }
     }
+
+    return feature;
+  }
+
+  this.setCenterOnFeature = function(feature, zoom) {
+    zoom = ((zoom >= 3) && (zoom <= 18)) ? zoom : 5;
+    if (feature != null)
+    {
+      var lonLat = feature.geometry.bounds.getCenterLonLat();
+      if (lonLat) { this.map.setCenter(lonLat, zoom); }
+    }
+  }
+
+  this.setCenterOnFeatureByNb = function(layerName, feature_nb, zoom) {
+    var layer = this.map.getLayersByName(layerName)[0];
+    var feature = layer.features[feature_nb];
+
+    this.setCenterOnFeature(feature, zoom);
+  }
+
+  this.setDragCallback = function(evt, method) {
+    switch (evt) {
+    case 'onEnter':
+    case 'onLeave':
+    case 'onStart':
+    case 'onComplete':
+      this.dragCallbacks[evt] = method;
+      break;
+    default:
+      alert('bad one');
+      break;
+    }
+  }
+
+  this.initializeControls = function(layerName) {
+    var layer = this.map.getLayersByName(layerName)[0];
+    var ctrls = {
+      select : new OpenLayers.Control.SelectFeature(layer),
+      point : new OpenLayers.Control.DrawFeature(layer, OpenLayers.Handler.Point),
+      path : new OpenLayers.Control.DrawFeature(layer, OpenLayers.Handler.Path),
+      polygon : new OpenLayers.Control.DrawFeature(layer, OpenLayers.Handler.Polygon),
+      drag : new OpenLayers.Control.DragFeature(layer, {
+        onComplete: function(feature) {
+          if (this.dragCallbacks['onComplete'] !== undefined) { this.dragCallbacks['onComplete'](feature); }
+        }.bind(this),
+        onStart: function() {
+          if (this.dragCallbacks['onStart'] !== undefined) { this.dragCallbacks['onStart'](feature); }
+        },
+        onDrag: function() {
+          if (this.dragCallbacks['onDrag'] !== undefined) { this.dragCallbacks['onDrag'](feature); }
+        }
+      })
+    }
+
+    layer.events.on({
+      featureselected: this.onFeatureSelect,
+      featureunselected: this.onFeatureUnselect,
+      scope : this
+    });
+
+    this.controls[layerName] = ctrls;
+
+    for (var key in this.controls[layerName])
+    {
+      this.map.addControl(this.controls[layerName][key])
+    }
+  }
+
+  this.toggleControl = function(layer, ctrl) {
+    for(key in this.controls[layer])
+    {
+      if(ctrl == key) { this.controls[layer][key].activate(); }
+      else { this.controls[layer][key].deactivate(); }
+    }
+  }
+
+  this.removeFeatures = function(layerName) {
+    var layer = this.map.getLayersByName(layerName)[0];
+
+    while (layer.features.length)
+    {
+      feat = layer.features[0];
+      layer.removeFeatures(feat);
+    }
+  }
+
+  this.destroyLayer = function(layerName) {
+    var layer = this.map.getLayersByName(layerName)[0];
+
+    // remove all popups
+    while (this.map.popups.length) { this.map.removePopup(map.popups[0]); }
+
+    // remove callbacks
+    layer.events.on({
+      featureselected: null,
+      featureunselected: null,
+      scope : this
+    });
+
+    // desactivate all controls for this layer
+    for(key in this.controls[layerName])
+    {
+      this.controls[layerName][key].deactivate();
+      this.map.removeControl(this.controls[layerName][key]);
+      this.controls[layerName][key].destroy();
+      this.controls[layerName][key] = null;
+    }
+
+    this.map.removeLayer(layer);
+    layer.destroy();
   }
 };
 
-MapLayers.SimpleMapHandler = function(map) {
-  this.map = map;
 
 
-  
-}
 
+
+// map_handler.setCenterOnFeature(map_handler.getLayerFeatureById('pikts', 'picture_44'), 3);
+// map_handler.setDragCallback('onComplete', function (feat) { map_handler.setCenterOnFeature(feat, 5); });
 // map.setCenter(new OpenLayers.LonLat(1, 50), 5);
 // map.getLayersByName('pikts')[0].features[0]
 // pikts_handler.addFeaturePopup(map.getLayersByName('pikts')[0].features[0])

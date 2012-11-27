@@ -48,6 +48,9 @@ xml.kml(:xmlns=>"http://earth.google.com/kml/2.2") do
       @features.each do |feature|
         unless feature.latitude.nil? || feature.longitude.nil?
           xml.Placemark do
+            # id
+            xml.id "#{dom_id(feature)}"
+
             # place name
             name = feature.respond_to?('name') ? feature.name : "#{dom_id(feature)}"
             xml.name "#{name}"
