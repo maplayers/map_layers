@@ -143,6 +143,34 @@ MapLayers.SimpleMapHandler = function(map) {
     }
   }
 
+  this.addFeature = function(layerName, lon, lat, icon) {
+    var layer = this.map.getLayersByName(layerName)[0];
+
+    var lonlat = new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
+    if (icon == null)
+    {
+      icon = { externalGraphic: "/assets/OpenLayers/marker.png",
+               graphicWidth: 21,
+               graphicHeight: 25,
+               fillOpacity: 1
+             };
+    }
+
+    var feature = new OpenLayers.Feature.Vector(
+                      new OpenLayers.Geometry.Point(lonlat.lon, lonlat.lat), null, icon);
+/*
+    var feature = new OpenLayers.Feature.Vector(
+                      new OpenLayers.Geometry.Point(lonlat.lon, lonlat.lat), null, {
+                          //externalGraphic: "http://maps.google.com/mapfiles/kml/shapes/sunny.png",
+                          externalGraphic: "/assets/OpenLayers/marker.png",
+                          graphicWidth: 32,
+                          graphicHeight: 32,
+                          fillOpacity: 1
+                      });
+*/
+    layer.addFeatures([feature]);
+  }
+
   this.removeFeatures = function(layerName) {
     var layer = this.map.getLayersByName(layerName)[0];
 
@@ -160,11 +188,13 @@ MapLayers.SimpleMapHandler = function(map) {
     while (this.map.popups.length) { this.map.removePopup(map.popups[0]); }
 
     // remove callbacks
+    /*
     layer.events.on({
       featureselected: null,
       featureunselected: null,
       scope : this
     });
+    */
 
     // desactivate all controls for this layer
     for(key in this.controls[layerName])
@@ -182,6 +212,29 @@ MapLayers.SimpleMapHandler = function(map) {
 
 
 
+// map_handler.addFeature('pikts', 8, 0);
+// map_handler.setDragCallback('onComplete', function(feature) { lonlat = feature.geometry.getBounds().getCenterLonLat().transform(
+//       map.getProjectionObject(),new OpenLayers.Projection("EPSG:4326")
+//     ); $('#picture_latitude').val(lonlat.lat); $('#picture_longitude').val(lonlat.lon); });
+
+
+// map_handler.addFeature('pikts', 50, 8, null);
+// map_handler.addFeature('pikts', 5000, 8000, null);
+
+// js :
+// var point = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Point(-111.04, 45.68), {icon:"icon.png"});
+// layer.addFeatures([point]); 
+//
+// var point = new OpenLayers.Geometry.Point(ll.lon, ll.lat);
+// var feature = new OpenLayers.Feature.Vector(point,{icon:"icon.png"});
+// layer.addFeature(feature);
+//
+//
+// map_handler.setDragCallback('onComplete', function(feature) {
+//   lonlat = feature.geometry.getBounds().getCenterLonLat().transform(map.getProjectionObject(),new OpenLayers.Projection("EPSG:4326"));
+//   $('#picture_latitude').val(lonlat.lat);
+//   $('#picture_longitude').val(lonlat.lon);
+// });
 
 
 // map_handler.setCenterOnFeature(map_handler.getLayerFeatureById('pikts', 'picture_44'), 3);

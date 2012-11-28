@@ -10,7 +10,7 @@ module MapLayers
     # * options[:proxy] with name of controller with proxy action. Defaults to current controller.
     def map_layers_includes(options = {})
       options.assert_valid_keys(:google, :multimap, :openstreetmap, :virtualearth, :yahoo, :proxy,:img_path)
-      html = ''
+      html = []
       if options.has_key?(:google)
         #html << "<script type=\"text/javascript\" src=\"http://maps.google.com/maps?file=api&amp;v=2&amp;key=#{options[:google]}\"></script>"
         html << "<script type=\"text/javascript\" src=\"http://maps.google.com/maps/api/js?v=3&amp;sensor=false\"></script>"
@@ -51,8 +51,19 @@ module MapLayers
       proxy = options.has_key?(:proxy) ? options[:proxy] : controller.controller_name
       html << javascript_tag("OpenLayers.ProxyHost='/#{proxy}/proxy?url=';")
 
-      html.html_safe
+      html.join("\n").html_safe
     end
-  end
 
+    def map_layers_container(map, options = {})
+      #<div class="map_container default_size">
+      #  <div id="map"></div>
+      #</div>
+      klass = %w(map_container)
+      klass << options[:class] unless options[:class].nil?
+      content_tag(:div, :class => klass.join(" ")) do
+        content_tag(:div, '', :id => map.container)
+      end
+    end
+
+  end
 end

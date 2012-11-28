@@ -52,6 +52,7 @@ module MapLayers
   #Map viewer main class
   class Map
     include JsWrapper
+    attr_reader :container
 
     def initialize(map, options = {}, &block)
       @container = map
@@ -179,7 +180,7 @@ module MapLayers
         html << "#{assign_to(@variable)}\n"
       end
       html << @js.to_s
-      html << "</script>\n" if !no_script_tag
+      html << "</script>" if !no_script_tag
 
       html.html_safe
     end
