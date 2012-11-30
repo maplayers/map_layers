@@ -105,15 +105,17 @@ module MapLayers
     def create_vector_layer(name, url, options = {})
       projection = options[:projection] || JsExpr.new("#{@container}.displayProjection")
       format = options[:format] || nil
+      protocol = url.nil? ? {} : {
+          :strategies => [OpenLayers::Strategy::Fixed.new], #, OpenLayers::Strategy::Cluster.new],
+          :protocol => OpenLayers::Protocol::HTTP.new({
+            :url => url,
+            :format => format
+          })
+        }
 
       OpenLayers::Layer::Vector.new(name, {
-        :projection => projection,
-        :strategies => [OpenLayers::Strategy::Fixed.new], #, OpenLayers::Strategy::Cluster.new],
-        :protocol => OpenLayers::Protocol::HTTP.new({
-          :url => url,
-          :format => format
-        })
-      })
+          :projection => projection
+        }.merge(protocol))
     end
 
     def add_map_handler(layer, options = {})
