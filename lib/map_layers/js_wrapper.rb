@@ -58,9 +58,11 @@ module MapLayers
     end
 
     #Declares a Mapping Object bound to a JavaScript variable of name +variable+.
-    def declare(variable)
-      @variable = variable
-      "var #{@variable} = #{create};"
+    def declare(variable, options = {})
+      declare_only = options[:declare_only] || nil
+      #@variable = variable
+      #"var #{@variable} = #{create};"
+      "var #{declare_only ? variable : assign_to(variable)}"
     end
 
     #declare with a random variable name
@@ -78,7 +80,7 @@ module MapLayers
     #Binds a Mapping object to a previously declared JavaScript variable of name +variable+.
     def assign_to(variable)
       @variable = variable
-      "#{@variable} = #{create};"
+      "#{@variable} = #{create}"
     end
 
     #Assign the +value+ to the +property+ of the JsWrapper
@@ -164,12 +166,28 @@ module MapLayers
   end
 
   class JsGenerator # :nodoc:
+    attr_reader :lines
     def initialize(options = {})
       @included = options[:included] || false
       @lines = []
     end
     def <<(javascript)
-      @lines << (javascript.is_a?(JsWrapper) ? javascript.to_javascript : javascript)
+      #@lines << (javascript.is_a?(JsWrapper) ? javascript.to_javascript : javascript)
+puts javascript.class
+      case javascript
+        when JsGenerator
+puts "HERE1 #{javascript.inspect}"
+          @lines.concat(javascript.lines)
+        when Array
+puts "HERE1 #{javascript.inspect}"
+          @lines.concat(javascript)
+        when JsWrapper
+puts "HERE2 #{javascript.inspect}"
+          @lines << javascript.to_javascript
+        else
+puts "HERE3 #{javascript.inspect}"
+          @lines << javascript
+      end
     end
     def assign(variable, value, options = {})
       declare = options[:declare] || false

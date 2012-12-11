@@ -3,6 +3,8 @@ require 'map_layers/config'
 require 'map_layers/js_wrapper'
 require 'map_layers/open_layers'
 require 'map_layers/map'
+require 'map_layers/map_handler'
+require 'map_layers/map_builder'
 require 'map_layers/railtie'
 require 'map_layers/engine'
 

@@ -52,14 +52,15 @@ module MapLayers
   #Map viewer main class
   class Map
     include JsWrapper
-    attr_reader :container
+    attr_reader :container, :variables
 
     def initialize(map, options = {}, &block)
       @container = map
       @handler = "#{map}_handler"
       @variable = map
+      @variables = [map] 
       @options = {:theme => false}.merge(options)
-      @js = JsGenerator.new
+      @js = JsGenerator.new(:included => true)
 #      @icons = []
       yield(self, @js) if block_given?
     end
@@ -67,39 +68,6 @@ module MapLayers
     #Outputs in JavaScript the creation of a OpenLayers.Map object
     def create
       "new OpenLayers.Map('#{@container}', #{JsWrapper::javascriptify_variable(@options)})"
-    end
-
-    def add_icon(name, url, options = {})
-      name_js = name.to_s.parameterize
-      "#{name_js} = #{create_js_icon(url, options)}"
-    end
-
-    def create_js_icon(url, options = {})
-      height = options[:height] || nil
-      width = options[:width] || nil
-      offset_height = options[:offset_height] || -height.to_i
-      offset_width = options[:offset_width] || -width.to_i/2
-
-      marker_sizes = (height.nil? || width.nil?) ? nil : [width, height]
-      marker_offset = (offset_height.nil? || offset_width.nil?) ? nil : [offset_width, offset_height]
-
-      marker_offset = nil if marker_sizes.nil?
-
-      opts = [ "'#{url}'" ]
-      opts << "new OpenLayers.Size(#{marker_sizes[0]}, #{marker_sizes[1]})" unless marker_sizes.nil?
-      opts << "new OpenLayers.Pixel(#{marker_offset[0]}, #{marker_offset[1]})" unless marker_offset.nil?
-
-      "new OpenLayers.Icon(#{opts.join(',')})"
-    end
-
-    def register_event(marker, event, &block)
-      "#{marker}.events.register('mousedown', marker, function(evt) { alert(this.icon.url); OpenLayers.Event.stop(evt) })"
-    end
-
-    def create_markers(name, options = {}, &block)
-      markers = Markers.new(@container, name, options)
-      yield markers if block_given?
-      markers.to_html.html_safe
     end
 
     def create_vector_layer(name, url, options = {})
@@ -151,100 +119,43 @@ module MapLayers
 
       frmt = case format
       when :georss
-      else # kml is the default
+      else # :kml is the default
         OpenLayers::Format::KML.new({:extractStyles => true, :extractAttributes => true})
       end
 
       layer = create_vector_layer(name, url, options.merge(
           :format => frmt))
 
-      js.assign(layer_name, layer, :declare => !no_global)
+      @variables << layer_name
+
+      js.assign(layer_name, layer) #, :declare => !no_global)
       js << JsVar.new(@container).add_layer(JsVar.new(layer_name))
-      js << add_map_handler(name, options) unless no_controls
+      #js << add_map_handler(name, options) unless no_controls
 
       js.to_s.html_safe
     end
 
     #Outputs the initialization code for the map
-    def to_html(options = {})
-      no_script_tag = options[:no_script_tag]
+    def to_js(options = {})
       no_declare = options[:no_declare]
       no_global = options[:no_global]
 
-      html = ""
-      html << "<script defer=\"defer\" type=\"text/javascript\">\n" if !no_script_tag
+      #html = ""
       #put the functions in a separate javascript file to be included in the page
-      html << "var #{@variable};\n" if !no_declare and !no_global
 
-      if !no_declare and no_global
-        html << "#{declare(@variable)}\n"
-      else
-        html << "#{assign_to(@variable)}\n"
-      end
-      html << @js.to_s
-      html << "</script>" if !no_script_tag
-
-      html.html_safe
-    end
-  end
-
-  class Markers
-    attr_reader :map, :name, :title, :markers
-
-    def initialize(map, name, options = {})
-      name_js = name.to_s.parameterize
-      title = options[:title] || name_js
-
-      @map, @name, @title = map, name_js, title
-      @markers = []
-    end
-
-    def create_marker(lat, lng, options = {}, &block)
-      puts "ADDING : #{lat} #{lng}"
-      marker = Marker.new(map, "#{name}_marker#{@markers.count}", lat, lng, options)
-      yield marker if block_given?
-      @markers << marker
-    end
-
-    def to_html
-      html = ["#{name} = new OpenLayers.Layer.Markers(\"#{title}\")"]
-      #html << self.instance_eval(&block) if block_given?
-      @markers.each do |marker|
-        html << marker.to_html
-        html << "#{name}.addMarker(#{marker.name})"
-      end
-      html << "#{map}.addLayer(#{name})"
-      html.join(";\n")
-    end
-
-  end
-
-  class Marker
-    attr_reader :map, :name, :lat, :lng, :projection, :icon, :events
-
-    def initialize(map, name, lat, lng, options = {})
-      name_js = name.to_s.parameterize
-      without_transform = options[:without_transform] || false
-      projection = options[:projection] || without_transform ? nil : "EPSG:4326"
-      @icon = options[:icon] || nil
-      @map, @name, @projection = map, name_js, projection
-      @lat, @lng = lat, lng
-      @events = []
-    end
-
-    def register_event(event, fct)
-      @events << {:event => event, :fct => fct} #capture(&block)}
-    end
-
-    def to_html
-      transform = projection.nil? ? "" :  ".transform(new OpenLayers.Projection(\"#{projection}\"), #{map}.getProjectionObject())" 
-
-      html = []
-      html << "#{name} = new OpenLayers.Marker( new OpenLayers.LonLat(#{lat}, #{lng})#{transform}#{", #{icon}.clone()" unless icon.nil?} )"
-      @events.each do |evt|
-        html << "#{name}.events.register('#{evt[:event]}', #{name}, #{evt[:fct]})"
-      end
-      html.join(";\n")
+      #@variables.each do |variable|
+#        html << "var #{@variable};\n" if !no_declare and !no_global
+#puts "here !! variable #{@variable}"
+#puts "here !! declare #{declare(@variable)}"
+#puts "here !! assign #{assign_to(@variable)}"
+#
+#        if !no_declare and no_global
+#          html << "#{declare(@variable)}\n"
+#        else
+#          html << "#{assign_to(@variable)}\n"
+#        end
+      #end
+      @js << assign_to(@variable)
     end
   end
 
