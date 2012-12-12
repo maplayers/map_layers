@@ -71,6 +71,18 @@ MapLayers.SimpleMapHandler = function(map) {
     return feature;
   }
 
+  this.getLonlatFromCoordinates = function(lat, lon) {
+    var lonlat = new OpenLayers.LonLat(lat, lon).transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
+    return lonlat;
+  }
+
+  this.setCenterOnCoordinates = function(lat, lon, zoom) {
+    zoom = ((zoom >= 3) && (zoom <= 18)) ? zoom : 5;
+
+    var lonlat = this.getLonlatFromCoordinates(lon, lat);
+    if (lonlat) { this.map.setCenter(lonlat, zoom); }
+  }
+
   this.setCenterOnFeature = function(feature, zoom) {
     zoom = ((zoom >= 3) && (zoom <= 18)) ? zoom : 5;
     if (feature != null)
@@ -143,10 +155,13 @@ MapLayers.SimpleMapHandler = function(map) {
     }
   }
 
-  this.addFeature = function(layerName, lon, lat, icon) {
+  this.addFeature = function(layerName, lat, lon, icon) {
     var layer = this.map.getLayersByName(layerName)[0];
 
-    var lonlat = new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
+    //var lonlat = new OpenLayers.LonLat(lat, lon).transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
+    //var lonlat = this.getLonlatFromCoordinates(lat, lon);
+    var point = new OpenLayers.Geometry.Point(lon, lat).transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
+
     if (icon == null)
     {
       icon = { externalGraphic: "/assets/OpenLayers/marker.png",
@@ -157,7 +172,8 @@ MapLayers.SimpleMapHandler = function(map) {
     }
 
     var feature = new OpenLayers.Feature.Vector(
-                      new OpenLayers.Geometry.Point(lonlat.lon, lonlat.lat), null, icon);
+                      point, null, icon);
+                      //new OpenLayers.Geometry.Point(lonlat.lat, lonlat.lon), null, icon);
 /*
     var feature = new OpenLayers.Feature.Vector(
                       new OpenLayers.Geometry.Point(lonlat.lon, lonlat.lat), null, {
@@ -209,6 +225,7 @@ MapLayers.SimpleMapHandler = function(map) {
     layer.destroy();
   }
 };
+
 
 
 

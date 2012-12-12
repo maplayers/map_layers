@@ -8,22 +8,29 @@ module MapLayers
     # * options[:virtualearth]: Include VirtualEarth
     # * options[:yahoo] with Yahoo appid: Include Yahoo! Maps
     # * options[:proxy] with name of controller with proxy action. Defaults to current controller.
-    def map_layers_includes(options = {})
-      options.assert_valid_keys(:google, :multimap, :openstreetmap, :virtualearth, :yahoo, :proxy,:img_path)
+    def map_layers_includes(map_builder, options = {}, &block)
+      options.assert_valid_keys(:google, :multi_map, :osm, :virtual_earth, :yahoo,
+                                :proxy, :img_path,
+                                :onload)
+
+      onload = options[:onload] || false
+
+      layers_added = map_builder.map.layers
+
       html = []
-      if options.has_key?(:google)
-        #html << "<script type=\"text/javascript\" src=\"http://maps.google.com/maps?file=api&amp;v=2&amp;key=#{options[:google]}\"></script>"
+      if options.has_key?(:google) || layers_added.include?(:google)
         html << "<script type=\"text/javascript\" src=\"http://maps.google.com/maps/api/js?v=3&amp;sensor=false\"></script>"
       end
-      if options.has_key?(:multimap)
+      if options.has_key?(:multi_map) || layers_added.include?(:multi_map)
         html << "<script type=\"text/javascript\" src=\"http://clients.multimap.com/API/maps/1.1/#{options[:multimap]}\"></script>"
       end
-      if options.has_key?(:virtualearth)
+      if options.has_key?(:virtual_earth) || layers_added.include?(:virtual_earth)
         html << "<script type=\"text/javascript\" src=\"http://dev.virtualearth.net/mapcontrol/v3/mapcontrol.js\"></script>"
       end
-      if options.has_key?(:yahoo)
+      if options.has_key?(:yahoo) || layers_added.include?(:yahoo)
         html << "<script type=\"text/javascript\" src=\"http://api.maps.yahoo.com/ajaxymap?v=3.0&appid=#{options[:yahoo]}\"></script>"
       end
+
       img_path = '/assets/OpenLayers/'
       if options.has_key?(:img_path)
         img_path = options[:img_path]
@@ -37,31 +44,26 @@ module MapLayers
         rails_root = Rails.root
         rails_relative_url_root = controller.config.relative_url_root
       end
-#      if rails_env == "development" && File.exist?(File.join( rails_root, 'public/javascripts/lib/OpenLayers.js'))
-#        html << '<script src="/javascripts/lib/Firebug/firebug.js"></script>'
-#        html << '<script src="/javascripts/lib/OpenLayers.js"></script>'
-#      else
-#        html << javascript_include_tag('OpenLayers')
-#      end
 
-
-      #html << stylesheet_link_tag("map")
       img_path=(Pathname(rails_relative_url_root||"") +img_path).cleanpath.to_s
-      html << javascript_tag("OpenLayers.ImgPath='"+ img_path  + "/';")
       proxy = options.has_key?(:proxy) ? options[:proxy] : controller.controller_name
-      html << javascript_tag("OpenLayers.ProxyHost='/#{proxy}/proxy?url=';")
+
+      scripts = []
+      scripts << "OpenLayers.ImgPath='#{img_path}/';"
+      scripts << "OpenLayers.ProxyHost='/#{proxy}/proxy?url=';"
+      scripts << map_builder.to_js
+      scripts << %Q[$(document).ready(function(){ map_layers_init_#{map_builder.map.container}(); });] if onload
+      scripts << capture(&block) if block_given?
+      html << javascript_tag(scripts.join("\n"))
 
       html.join("\n").html_safe
     end
 
-    def map_layers_container(map, options = {})
-      #<div class="map_container default_size">
-      #  <div id="map"></div>
-      #</div>
+    def map_layers_container(map_builder, options = {})
       klass = %w(map_container)
       klass << options[:class] unless options[:class].nil?
       content_tag(:div, :class => klass.join(" ")) do
-        content_tag(:div, '', :id => map.container)
+        content_tag(:div, '', :id => map_builder.map.container)
       end
     end
 

@@ -11,9 +11,7 @@ module MapLayers
 
       @js << @map.to_js(options)
       @js << @map_handler.to_js(options)
-pp @map
       yield(@map, @map_handler, @js) if block_given?
-pp @map
     end
 
     def to_js(options = {})
@@ -29,7 +27,8 @@ pp @map
 
       js << "#{declare(variables.join(','), :declare_only => true)}"
 
-      js << "function #{method_name}() {\n#{@js.to_s}\n}"
+      js << "#{@container} = null"
+      js << "function #{method_name}() {\nif (#{@container} == null) {\n#{@js.to_s}}\n}"
       
       #js << "#{method_name}()"
 
@@ -46,7 +45,7 @@ pp @map
 
       html.html_safe
     end
-
+    alias_method :to_s, :to_html
     
   end
 end

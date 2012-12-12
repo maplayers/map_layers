@@ -1,9 +1,9 @@
 module MapLayers
 
-  GOOGLE = OpenLayers::Layer::Google.new("Google Street")
-  GOOGLE_SATELLITE = OpenLayers::Layer::Google.new("Google Satelite", {:type => :G_SATELLITE_MAP})
-  GOOGLE_HYBRID = OpenLayers::Layer::Google.new("Google Hybrid", {:type => :G_HYBRID_MAP})
-  GOOGLE_PHYSICAL = OpenLayers::Layer::Google.new("Google Physical", {:type => :G_PHYSICAL_MAP})
+  GOOGLE = OpenLayers::Layer::Google.new("Google Street", {:spherical_mercator => true})
+  GOOGLE_SATELLITE = OpenLayers::Layer::Google.new("Google Satelite", {:spherical_mercator => true, :type => :G_SATELLITE_MAP})
+  GOOGLE_HYBRID = OpenLayers::Layer::Google.new("Google Hybrid", {:spherical_mercator => true, :type => :G_HYBRID_MAP})
+  GOOGLE_PHYSICAL = OpenLayers::Layer::Google.new("Google Physical", {:spherical_mercator => true, :type => :G_PHYSICAL_MAP})
   VE_ROAD = OpenLayers::Layer::VirtualEarth.new("Virtual Earth Raods", {:type => JsExpr.new('VEMapStyle.Road')})
   VE_AERIAL = OpenLayers::Layer::VirtualEarth.new("Virtual Earth Aerial", {:type => JsExpr.new('VEMapStyle.Aerial')})
   VE_HYBRID = OpenLayers::Layer::VirtualEarth.new("Virtual Earth Hybrid", {:type => JsExpr.new('VEMapStyle.Hybrid')})
@@ -52,17 +52,27 @@ module MapLayers
   #Map viewer main class
   class Map
     include JsWrapper
-    attr_reader :container, :variables
+    attr_reader :container, :variables, :layers
 
     def initialize(map, options = {}, &block)
       @container = map
       @handler = "#{map}_handler"
-      @variable = map
+      #@variable = map
+      @layers = []
       @variables = [map] 
       @options = {:theme => false}.merge(options)
       @js = JsGenerator.new(:included => true)
 #      @icons = []
       yield(self, @js) if block_given?
+    end
+
+    # add_layer method which save the name of layer included before calling the javascript action
+    def add_layer(*args)
+      type = args.first.class.to_s.split(":").last.gsub(/([a-z])([A-Z])/, '\1_\2').downcase.to_sym rescue nil
+      @layers << type unless type.nil? || layers.include?(type)
+
+      # call default javascript action
+      method_missing('add_layer', *args)
     end
 
     #Outputs in JavaScript the creation of a OpenLayers.Map object
@@ -137,8 +147,8 @@ module MapLayers
 
     #Outputs the initialization code for the map
     def to_js(options = {})
-      no_declare = options[:no_declare]
-      no_global = options[:no_global]
+#      no_declare = options[:no_declare]
+#      no_global = options[:no_global]
 
       #html = ""
       #put the functions in a separate javascript file to be included in the page
@@ -155,7 +165,8 @@ module MapLayers
 #          html << "#{assign_to(@variable)}\n"
 #        end
       #end
-      @js << assign_to(@variable)
+      #@js << assign_to(@variable)
+      @js << assign_to(@container)
     end
   end
 
