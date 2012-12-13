@@ -65,7 +65,7 @@ xml.kml(:xmlns=>"http://earth.google.com/kml/2.2") do
             # place geoloc
             altitude = feature.respond_to?('altitude') ? feature.altitude : 0
             xml.Point do
-              xml.coordinates "#{feature.latitude.to_i},#{feature.longitude.to_i},#{altitude}"
+              xml.coordinates "#{feature.latitude.to_f},#{feature.longitude.to_f},#{altitude}"
             end
           end
         end

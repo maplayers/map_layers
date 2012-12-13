@@ -53,7 +53,7 @@ module MapLayers
       scripts << "OpenLayers.ProxyHost='/#{proxy}/proxy?url=';"
       scripts << map_builder.to_js
       scripts << %Q[$(document).ready(function(){ map_layers_init_#{map_builder.map.container}(); });] if onload
-      scripts << capture(&block) if block_given?
+      scripts << (capture(&block) % { :map_handler => map_builder.map_handler.container, :map => map_builder.map.container  } rescue "alert('error');") if block_given?
       html << javascript_tag(scripts.join("\n"))
 
       html.join("\n").html_safe

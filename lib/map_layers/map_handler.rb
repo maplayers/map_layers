@@ -1,17 +1,17 @@
 module MapLayers
   class MapHandler
     include JsWrapper
-    attr_reader :variables
+    attr_reader :variables, :container
 
     def initialize(map, options = {}, &block)
       default_control = options[:default_control] || 'select'
       default_control = 'select' unless %w(select point path polygon drag).include?(default_control)
 
       @map = map.container
-      @variable = options[:name] || "#{map.container}_handler"
+      @container = options[:name] || "#{map.container}_handler"
 
       # js variables
-      @variables = [@variable] 
+      @variables = [@container] 
 
       #@js = JsGenerator.new
       @js = JsGenerator.new(:included => true)
@@ -27,7 +27,7 @@ module MapLayers
 
     #Outputs the initialization code for the map
     def to_js(options = {})
-      @js << assign_to(@variable)
+      @js << assign_to(@container)
     end
 
   end
