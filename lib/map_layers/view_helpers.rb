@@ -60,12 +60,25 @@ module MapLayers
     end
 
     def map_layers_container(map_builder, options = {})
+      include_loading = options[:include_loading] || false
+
       klass = %w(map_container)
       klass << options[:class] unless options[:class].nil?
       content_tag(:div, :class => klass.join(" ")) do
-        content_tag(:div, '', :id => map_builder.map.container)
+        content = content_tag(:div, '', :id => map_builder.map.container)
+        content << content_tag(:div, '', :class => 'loading') if include_loading
+        content
       end
     end
+
+    def map_layers_localize_form(map_builder, path, options = {})
+      default_value = options[:default_value] || ''
+      form_tag path, :remote => true, :class => 'map_layers localize' do |f|
+        content = text_field_tag(:search, default_value)
+        content << submit_tag(I18n.t('helpers.map_layers_localize_form.search'))
+      end
+    end
+
 
   end
 end
