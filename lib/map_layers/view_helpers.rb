@@ -79,6 +79,5 @@ module MapLayers
       end
     end
 
-
   end
 end

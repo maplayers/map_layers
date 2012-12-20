@@ -76,19 +76,21 @@ MapLayers.SimpleMapHandler = function(map) {
     return lonlat;
   }
 
-  this.setCenterOnCoordinates = function(lat, lon, zoom) {
-    zoom = ((zoom >= 3) && (zoom <= 18)) ? zoom : 5;
-
-    var lonlat = this.getLonlatFromCoordinates(lat, lon);
+  this.setCenterOnLonlat = function(lonlat, zoom) {
+    if (zoom === undefined) { zoom = this.map.getZoom(); }
     if (lonlat) { this.map.setCenter(lonlat, zoom); }
   }
 
+  this.setCenterOnCoordinates = function(lat, lon, zoom) {
+    var lonlat = this.getLonlatFromCoordinates(lat, lon);
+    this.setCenterOnLonlat(lonlat, zoom);
+  }
+
   this.setCenterOnFeature = function(feature, zoom) {
-    zoom = ((zoom >= 3) && (zoom <= 18)) ? zoom : 5;
     if (feature != null)
     {
-      var lonLat = feature.geometry.bounds.getCenterLonLat();
-      if (lonLat) { this.map.setCenter(lonLat, zoom); }
+      var lonlat = feature.geometry.bounds.getCenterLonLat();
+      this.setCenterOnLonlat(lonlat, zoom);
     }
   }
 
@@ -267,7 +269,7 @@ MapLayers.SimpleMapHandler = function(map) {
 //            alert("panning");
 //        });
 // %{map}.events.register("moveend", map, function() {
-//   var center = %{map}.getCenter().clone().transform( map.getProjectionObject(),new OpenLayers.Projection("EPSG:4326") );
+//   var center = %{map}.getCenter().clone().transform( %{map}.getProjectionObject(),new OpenLayers.Projection("EPSG:4326") );
 //   alert("moveend : " + center);
 //   %{map_handler}.addFeature('pikts', center.lat, center.lon);
 // });
