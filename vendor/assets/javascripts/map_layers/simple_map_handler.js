@@ -4,15 +4,6 @@ MapLayers.SimpleMapHandler = function(map) {
   this.controls = {};
   this.dragCallbacks = {};
 
-  this.onFeatureSelect = function(event) {
-    //var feature = event.feature;
-    //alert("this " + this.constructor);
-    this.addFeaturePopup(event.feature);
-  }
-  this.onFeatureUnselect = function(event) {
-    this.removeFeaturePopup(event.feature);
-  }
-
   this.addFeaturePopup = function(feature) {
     this.selectedFeature = feature;
     var popup = new OpenLayers.Popup.FramedCloud("chicken", 
@@ -47,9 +38,8 @@ MapLayers.SimpleMapHandler = function(map) {
     layer.setVisibility(!visible);
   }
 
-  this.getLayerFeature = function(layerName, feature_nb) {
+  this.getLayerFeatureByNb = function(layerName, feature_nb) {
     var layer = this.map.getLayersByName(layerName)[0];
-    //var feature = layer.features[feature_nb];
     var feature = feature_nb != -1 ? layer.features[feature_nb] : layer.features.slice(-1).pop();
     return feature;
   }
@@ -89,16 +79,13 @@ MapLayers.SimpleMapHandler = function(map) {
   this.setCenterOnFeature = function(feature, zoom) {
     if (feature != null)
     {
-      var lonlat = feature.geometry.bounds.getCenterLonLat();
+      var lonlat = feature.geometry.bounds.getCenterLonLat().clone();
       this.setCenterOnLonlat(lonlat, zoom);
     }
   }
 
   this.setCenterOnFeatureByNb = function(layerName, feature_nb, zoom) {
-    //var layer = this.map.getLayersByName(layerName)[0];
-    //var feature = layer.features[feature_nb];
-    var feature = this.getLayerFeature(layerName, feature_nb)
-
+    var feature = this.getLayerFeatureByNb(layerName, feature_nb)
     this.setCenterOnFeature(feature, zoom);
   }
 
@@ -114,6 +101,13 @@ MapLayers.SimpleMapHandler = function(map) {
       alert('bad callback name : ' + evt);
       break;
     }
+  }
+
+  this.onFeatureSelect = function(event) {
+    this.addFeaturePopup(event.feature);
+  }
+  this.onFeatureUnselect = function(event) {
+    this.removeFeaturePopup(event.feature);
   }
 
   this.initializeControls = function(layerName) {
@@ -161,8 +155,6 @@ MapLayers.SimpleMapHandler = function(map) {
   this.addFeature = function(layerName, lat, lon, icon) {
     var layer = this.map.getLayersByName(layerName)[0];
 
-    //var lonlat = new OpenLayers.LonLat(lat, lon).transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
-    //var lonlat = this.getLonlatFromCoordinates(lat, lon);
     var point = new OpenLayers.Geometry.Point(lon, lat).transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
 
     if (icon == null)
@@ -174,8 +166,7 @@ MapLayers.SimpleMapHandler = function(map) {
              };
     }
 
-    var feature = new OpenLayers.Feature.Vector(
-                      point, null, icon);
+    var feature = new OpenLayers.Feature.Vector(point, null, icon);
                       //new OpenLayers.Geometry.Point(lonlat.lat, lonlat.lon), null, icon);
 /*
     var feature = new OpenLayers.Feature.Vector(
@@ -188,6 +179,15 @@ MapLayers.SimpleMapHandler = function(map) {
                       });
 */
     layer.addFeatures([feature]);
+    return feature;
+  }
+
+  this.addFeatureDescription = function(feature, name, description) {
+    if (feature != null)
+    {
+      feature.attributes.name = name;
+      feature.attributes.description = description;
+    }
   }
 
   this.removeFeatures = function(layerName) {

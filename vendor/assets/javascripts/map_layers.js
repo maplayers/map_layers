@@ -8,14 +8,8 @@ var MapLayers = {};
 
 // TODO: add support for multiples map
 function mapLayersLoading() {
-  if (jQuery)
-  {
-    return mapLayersLoadingJquery();
-  }
-  else
-  {
-    alert('jquery has to be loaded before map_layers')
-  }
+  if (jQuery) { return mapLayersLoadingJquery(); }
+  else { alert('jquery has to be loaded before map_layers') }
 }
 
 function mapLayersLoadingJquery() {

@@ -59,7 +59,7 @@ module MapLayers
       html.join("\n").html_safe
     end
 
-    def map_layers_container(map_builder, options = {})
+    def map_layers_container(map_builder, options = {}, &block)
       include_loading = options[:include_loading] || false
 
       klass = %w(map_container)
@@ -67,8 +67,15 @@ module MapLayers
       content_tag(:div, :class => klass.join(" ")) do
         content = content_tag(:div, '', :id => map_builder.map.container)
         content << content_tag(:div, '', :class => 'loading') if include_loading
+        content << capture(&block) if block_given?
         content
       end
+    end
+
+    def map_layers_localize_form_tag(url_for_options = {}, options = {}, &block)
+      klass = options[:class] || ''
+      map_layers_options = options.merge(:remote => true, :class => [klass, 'map_layers', 'localize'].reject { |c| c.empty? }.join(' '))
+      form_tag(url_for_options, map_layers_options, &block)
     end
 
     def map_layers_localize_form(map_builder, path, options = {})
