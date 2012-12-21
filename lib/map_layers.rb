@@ -1,10 +1,13 @@
 require 'map_layers/version'
 require 'map_layers/config'
-require 'map_layers/js_wrapper'
-require 'map_layers/open_layers'
-require 'map_layers/map'
-require 'map_layers/map_handler'
-require 'map_layers/map_builder'
+
+require 'map_layers/js_wrapper/js_wrapper'
+require 'map_layers/js_wrapper/open_layers'
+require 'map_layers/js_wrapper/open_layers_layers'
+require 'map_layers/js_wrapper/map'
+require 'map_layers/js_wrapper/map_handler'
+require 'map_layers/js_wrapper/map_builder'
+
 require 'map_layers/railtie'
 require 'map_layers/engine'
 
@@ -29,17 +32,6 @@ module MapLayers # :nodoc:
 
       # create the configuration
       @map_layers_config = MapLayers::Config::new(model_id, options)
-
-      # module_eval do
-      #   include MapLayers::KML
-      #   include MapLayers::WFS
-      #   include MapLayers::GeoRSS
-      #   include MapLayers::Proxy
-      #   include MapLayers::Rest
-      # end
-
-      #session :off, :only => [:kml, :wfs, :georss]
-
     end
     
     def map_layers_config

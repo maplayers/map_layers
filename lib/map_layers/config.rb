@@ -1,6 +1,5 @@
 module MapLayers 
-
- class Config
+  class Config
     attr_reader :model_id, :id, :lat, :lon, :geometry, :text
     
     def initialize(model_id, options)
@@ -16,5 +15,4 @@ module MapLayers
       @model ||= @model_id.to_s.camelize.constantize
     end
   end
-
 end

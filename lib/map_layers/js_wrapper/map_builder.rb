@@ -46,6 +46,5 @@ module MapLayers
       html.html_safe
     end
     alias_method :to_s, :to_html
-    
   end
 end

@@ -78,13 +78,5 @@ module MapLayers
       form_tag(url_for_options, map_layers_options, &block)
     end
 
-    def map_layers_localize_form(map_builder, path, options = {})
-      default_value = options[:default_value] || ''
-      form_tag path, :remote => true, :class => 'map_layers localize' do |f|
-        content = text_field_tag(:search, default_value)
-        content << submit_tag(I18n.t('helpers.map_layers_localize_form.search'))
-      end
-    end
-
   end
 end

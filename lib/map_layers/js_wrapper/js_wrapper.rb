@@ -146,9 +146,9 @@ module MapLayers
 
     def self.const_missing(sym)
       if self.const_defined?(sym)
-        k = self.const_get(sym)
+        konst = self.const_get(sym)
       else
-        k = self.const_set(sym, Class.new(JsClass))
+        konst = self.const_set(sym, Class.new(JsClass))
       end
     end
  
@@ -173,19 +173,14 @@ module MapLayers
     end
     def <<(javascript)
       #@lines << (javascript.is_a?(JsWrapper) ? javascript.to_javascript : javascript)
-puts javascript.class
       case javascript
         when JsGenerator
-puts "HERE1 #{javascript.inspect}"
           @lines.concat(javascript.lines)
         when Array
-puts "HERE1 #{javascript.inspect}"
           @lines.concat(javascript)
         when JsWrapper
-puts "HERE2 #{javascript.inspect}"
           @lines << javascript.to_javascript
         else
-puts "HERE3 #{javascript.inspect}"
           @lines << javascript
       end
     end
