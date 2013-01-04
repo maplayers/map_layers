@@ -15,10 +15,8 @@ module MapLayers
 
   class Railtie
     def self.insert
-      # TODO: Add a sub-module to avoid including the whole gem
-      # into action_view
-      ActionController::Base.send(:include, MapLayers)
-      ActionView::Base.send(:include, MapLayers)
+      #ActionController::Base.send(:include, MapLayers::JsExtensions)
+      #ActionView::Base.send(:include, MapLayers::JsExtensions)
       ActionView::Base.send(:include, MapLayers::ViewHelpers)
 
       Mime::Type.register "application/vnd.google-earth.kml+xml", :kml

@@ -1,33 +1,28 @@
 # -*- encoding: utf-8 -*-
-$:.push File.expand_path("../lib", __FILE__)
-require "map_layers/version"
+require File.expand_path('../lib/map_layers/version', __FILE__)
 
-Gem::Specification.new do |s|       
-  s.name        = "map_layers"
-  s.version     = MapLayers::VERSION
-  s.platform    = Gem::Platform::RUBY
-  s.authors     = ["Luc Donnet", "Alban Peignier", "Pirmin Kalberer"] 
-  s.email       = ["luc.donnet@free.fr", "alban.peignier@free.fr", "pka@sourcepole.ch"]
-  s.homepage    = "http://github.com/dryade/map_layers"
-  s.summary     = %q{library dedicated to generate OSM javascript}
-  s.description = %q{library dedicated to generate OSM javascript}
+Gem::Specification.new do |gem|
+  gem.authors       = ["Thomas Kienlen", "Luc Donnet", "Alban Peignier", "Pirmin Kalberer"] 
+  gem.email         = ["thomas.kienlen@lafourmi-immo.com", "luc.donnet@free.fr", "alban.peignier@free.fr", "pka@sourcepole.ch"]
+  gem.description   = %q{library dedicated to generate OSM javascript}
+  gem.summary       = %q{library dedicated to generate OSM javascript}
+  gem.homepage      = "http://github.com/kmmndr/map_layers"
 
-  s.rubyforge_project = s.name
+  gem.files         = `git ls-files`.split("\n")
+  gem.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
+  gem.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
+  gem.name          = "map_layers"
+  gem.require_paths = ["lib"]	
+  gem.version       = MapLayers::VERSION
 
-  s.files         = `git ls-files`.split("\n")
-  s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
-  s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
-  s.require_paths = ["lib"]	
+  gem.add_development_dependency 'rails', '~> 3.2.0'
+  #gem.add_development_dependency(%q<rspec>, ["~> 2.0.0"])
+  #gem.add_development_dependency(%q<rspec-rails>, ["~> 2.0.0"])
 
-  if ENV['RAILS_3']        
-    s.add_development_dependency(%q<rails>, ["~> 3.0.0"])
-  else
-    s.add_development_dependency(%q<rails>, [">= 2.3.8"])
+  #gem.add_development_dependency('rake')
+  #gem.add_development_dependency('autotest-rails')
+  #gem.add_development_dependency('autotest-notification')
+  unless ENV["CI"]
+    gem.add_development_dependency "turn", "~> 0.9" if defined?(RUBY_VERSION) && RUBY_VERSION > '1.9'
   end
-  s.add_development_dependency(%q<rspec>, ["~> 2.0.0"])
-  s.add_development_dependency(%q<rspec-rails>, ["~> 2.0.0"])
-
-  s.add_development_dependency('rake')
-  s.add_development_dependency('autotest-rails')
-  s.add_development_dependency('autotest-notification') 		
 end
