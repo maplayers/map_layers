@@ -6,10 +6,20 @@ MapLayers.SimpleMapHandler = function(map) {
 
   this.addFeaturePopup = function(feature) {
     this.selectedFeature = feature;
-    var popup = new OpenLayers.Popup.FramedCloud("chicken", 
+
+    name = feature.attributes.name;
+
+    if (feature.attributes.link !== undefined)
+    {
+      name = '<a href="' + feature.attributes.link + '">' + name + '</a>'
+    }
+
+    pop_content = '<div class="map_layer_popup"><h2>' + name + '</h2>' + feature.attributes.description + '</div>';
+
+    var popup = new OpenLayers.Popup.FramedCloud("chicken",
         feature.geometry.getBounds().getCenterLonLat(),
         new OpenLayers.Size(100,100),
-        "<h2>"+feature.attributes.name + "</h2>" + feature.attributes.description,
+        pop_content,
         null, false, null
     );
     feature.popup = popup;
@@ -182,11 +192,12 @@ MapLayers.SimpleMapHandler = function(map) {
     return feature;
   }
 
-  this.addFeatureDescription = function(feature, name, description) {
+  this.addFeatureAttributes = function(feature, attributes) {
     if (feature != null)
     {
-      feature.attributes.name = name;
-      feature.attributes.description = description;
+      for (var key in attributes) {
+        feature.attributes[key] = attributes[key];
+      }
     }
   }
 
