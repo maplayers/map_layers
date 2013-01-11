@@ -3,16 +3,6 @@ require 'pp'
 module MapLayers
   module JsExtension
 
-    module JsClassMissingConstWrapper
-      def const_missing(sym)
-        if self.const_defined?(sym)
-          self.const_get(sym)
-        else
-          self.const_set(sym, Class.new(MapLayers::JsExtension::JsClass))
-        end
-      end
-    end
-
     #The module where all the Ruby-to-JavaScript conversion takes place.
     #Based on Ym4r::GmPlugin::MappingObject from Guilhem Vellut
     module JsWrapper
@@ -117,6 +107,16 @@ module MapLayers
       end
     end
 
+    module JsClassMissingConstWrapper
+      def const_missing(sym)
+        if self.const_defined?(sym)
+          self.const_get(sym)
+        else
+          self.const_set(sym, Class.new(MapLayers::JsExtension::JsClass))
+        end
+      end
+    end
+
     #A valid JavaScript expression that has a value.
     class JsExpr
       include JsWrapper
@@ -204,7 +204,6 @@ module MapLayers
         @lines.join("\n")
       end
     end
-
 
   end
 end
