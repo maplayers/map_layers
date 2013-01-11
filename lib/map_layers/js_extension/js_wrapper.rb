@@ -3,24 +3,26 @@ require 'pp'
 module MapLayers
   module JsExtension
 
+    module JsClassMissingConstWrapper
+      def const_missing(sym)
+        if self.const_defined?(sym)
+          self.const_get(sym)
+        else
+          self.const_set(sym, Class.new(MapLayers::JsExtension::JsClass))
+        end
+      end
+    end
+
     #The module where all the Ruby-to-JavaScript conversion takes place.
     #Based on Ym4r::GmPlugin::MappingObject from Guilhem Vellut
     module JsWrapper
       #The name of the variable in JavaScript space.
-      attr_reader :variable
+      attr_accessor :variable
 
       UNDEFINED = 'undefined'
 
       #Creates javascript code for missing methods + takes care of listeners
       def method_missing(name,*args)
-        #str_name = name.to_s
-        #args.collect! do |arg|
-        #  JsWrapper.javascriptify_variable(arg)
-        #end
-pp "NAME : #{name} to_javascript #{to_javascript}"
-puts args.inspect
-#puts args.join(',')
-        #JsExpr.new("#{to_javascript}.#{JsWrapper.javascriptify_method(str_name)}(#{args.join(",")})")
         javascriptify_method_call(name.to_s, *args)
       end
 
@@ -39,27 +41,10 @@ puts args.inspect
 
       #Transforms a Ruby object into a JavaScript string : JsWrapper, String, Array, Hash and general case (using to_s)
       def self.javascriptify_variable(arg)
-#        if arg.is_a?(JsWrapper)
-#          arg.to_javascript
-#        elsif arg.is_a?(String)
-#          "\'#{JsWrapper.escape_javascript(arg)}\'"
-#        elsif arg.is_a?(Array)
-#          "[" + arg.collect{ |a| JsWrapper.javascriptify_variable(a)}.join(",") + "]"
-#        elsif arg.is_a?(Hash)
-#          "{" + arg.to_a.collect do |v|
-#            "#{JsWrapper.javascriptify_method(v[0].to_s)} : #{JsWrapper.javascriptify_variable(v[1])}"
-#          end.join(",") + "}"
-#        elsif arg.nil?
-#          UNDEFINED
-#        else
-#          arg.to_s
-#        end
         case arg
           when JsWrapper, JsExpr, JsVar
-#pp "JAVASCRIPTIFY : JS"
             arg.to_javascript
           when String
-#pp "JAVASCRIPTIFY : STRING"
             "\'#{JsWrapper.escape_javascript(arg)}\'"
           when Array
             "[" + arg.collect{ |a| JsWrapper.javascriptify_variable(a)}.join(",") + "]"
@@ -68,7 +53,6 @@ puts args.inspect
           when NilClass
             UNDEFINED
           else
-#pp "JAVASCRIPTIFY : ELSE"
             arg.to_s
         end
       end
@@ -83,17 +67,9 @@ puts args.inspect
         method_name.gsub(/_(\w)/){|s| $1.upcase}
       end
 
-      #
-      #def var(*variables)
-      #  "var #{variables.join(',')}"
-      #end
-
       #Declares a Mapping Object bound to a JavaScript variable of name +variable+.
       def declare(variable, options = {})
         assign_variable = options[:assign] || false
-        #@variable = variable
-        #"var #{@variable} = #{create};"
-        #var(assign_variable ? assign_to(variable) : variable)
         JsExpr.new("var #{assign_variable ? assign_to(variable) : variable}")
       end
 
@@ -121,10 +97,7 @@ puts args.inspect
 
       #Returns a Javascript code representing the object
       def to_javascript
-pp "to_javascript"
-        ret = @variable.nil? ? create : @variable
-pp "#{@variable} --> #{ret}"
-        ret
+        @variable.nil? ? create : @variable
       end
 
       #To cheat JavaScriptGenerator::GeneratorMethods::javascript_object_for
@@ -142,14 +115,6 @@ pp "#{@variable} --> #{ret}"
         @variable = variable
         "#{@variable} = #{create}"
       end
-
-      def set_variable(variable)
-        @variable = variable
-      end
-
-      def get_variable
-        @variable
-      end
     end
 
     #A valid JavaScript expression that has a value.
@@ -166,24 +131,13 @@ pp "#{@variable} --> #{ret}"
       end
 
       def to_ary
-pp "to_ary called"
-#raise 'toto'
         [create]
       end
 
       def to_s
-pp "to_s called"
-pp expr.class
-pp expr
         expr.to_s
       end
-      def to_str
-        to_s
-      end
-      #alias_method :to_s, :create
-      #alias_method :to_str, :to_s
-
-      #UNDEFINED = JsExpr.new(JsWrapper::UNDEFINED)
+      alias_method :to_str, :to_s
     end
 
 
@@ -193,14 +147,13 @@ pp expr
       attr_reader :variable, :value
 
       alias_method :to_s, :variable
-      #alias_method :to_str, :create
+      alias_method :to_str, :variable
 
       def initialize(variable)
         @variable = variable
       end
 
       def assign(val)
-        #@value = JsWrapper::javascriptify_variable(val)
         @value = val
         create
       end
@@ -215,21 +168,17 @@ pp expr
     class JsClass
       include JsWrapper
 
-      def self.const_missing(sym)
-        if self.const_defined?(sym)
-          konst = self.const_get(sym)
-        else
-          konst = self.const_set(sym, Class.new(JsClass))
-        end
-      end
+      # Javascriptify missing constant
+      extend JsClassMissingConstWrapper
 
       def initialize(*args)
         @args = args
       end
 
-      def create
+      def create() #base = 'OpenLayers')
         jsclass = self.class.to_s.split(/::/)[1..-1]
-        jsclass.insert(0, 'OpenLayers') unless jsclass[0] == 'OpenLayers'
+        #jsclass.insert(0, 'OpenLayers') unless jsclass[0] == 'OpenLayers'
+        #jsclass.insert(0, base) unless jsclass[0] == base
         args = @args.collect{ |arg| JsWrapper.javascriptify_variable(arg) }
         JsExpr.new("new #{jsclass.join('.')}(#{args.join(',')})")
       end
@@ -239,35 +188,23 @@ pp expr
     class JsGenerator # :nodoc:
       attr_reader :lines
       def initialize(options = {})
-        @included = options[:included] || false
         @lines = []
       end
       def <<(javascript)
-        #@lines << (javascript.is_a?(JsWrapper) ? javascript.to_javascript : javascript)
         case javascript
           when JsGenerator
             @lines.concat(javascript.lines)
-          # OPTIMIZE: why arrays ?
-          #when Array
-          #  @lines.concat(javascript)
-          when JsWrapper, JsVar, JsExpr
-#@lines << "TYPE JS : #{javascript.inspect}"
-            #@lines << "--> #{javascript.to_javascript} <--; // js"
+          when JsWrapper #, JsVar, JsExpr
             @lines << "#{javascript.to_javascript};"
           else
-#@lines << "TYPE ELSE : #{javascript.class}"
-            #@lines << "==> #{javascript} <==; // string"
             @lines << javascript
         end
       end
-      def assign(variable, value)
-        self << "#{variable} = #{JsWrapper::javascriptify_variable(value)}"
-      end
       def to_s
-        #"#{@lines.join(";\n")}#{@included ? '' : ";\n"}"
         @lines.join("\n")
       end
     end
+
 
   end
 end

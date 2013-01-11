@@ -43,8 +43,8 @@ module MapLayers
       scripts << "OpenLayers.ImgPath='#{img_path}/';"
       scripts << "OpenLayers.ProxyHost='/#{proxy}/proxy?url=';"
       scripts << map_builder.to_js
-      scripts << %Q[$(document).ready(function() { map_layers_init_#{map_builder.map.container}(); });] if onload
-      scripts << (capture(&block) % { :map_handler => map_builder.map_handler.container, :map => map_builder.map.container  } rescue "alert('error');") if block_given?
+      scripts << %Q[$(document).ready(function() { map_layers_init_#{map_builder.map.variable}(); });] if onload
+      scripts << (capture(&block) % { :map_handler => map_builder.map_handler.variable, :map => map_builder.map.variable  } rescue "alert('error');") if block_given?
 
       scripts.join("\n").html_safe
     end
@@ -55,7 +55,7 @@ module MapLayers
       klass = %w(map_container)
       klass << options[:class] unless options[:class].nil?
       content_tag(:div, :class => klass.join(" ")) do
-        content = content_tag(:div, '', :id => map_builder.map.container)
+        content = content_tag(:div, '', :id => map_builder.map.variable)
         content << content_tag(:div, '', :class => 'loading') if include_loading
         content << capture(&block) if block_given?
         content

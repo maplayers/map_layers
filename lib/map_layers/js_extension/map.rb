@@ -1,23 +1,23 @@
 module MapLayers
   module JsExtension
 
-    #Map viewer main class
     class Map
       include JsWrapper
-      attr_reader :container, :layers
+      attr_reader :layers, :js
       attr_accessor :variables
 
       def initialize(map_name, options = {}, &block)
-        set_variable map_name
+        self.variable = map_name
 
-        @container = map_name
-        #@handler = "#{map}_handler"
-        #@variable = map
+        # layers used for current map
         @layers = []
-        @variables = [map_name]
+
+        # js variables used for current map (at least one for each layer)
+        @variables = []
+
         @options = {:theme => false}.merge(options)
-        @js = JsGenerator.new(:included => true)
-  #      @icons = []
+        @js = JsGenerator.new #(:included => true)
+        @js << JsVar.new(variable).assign(create)
         yield(self, @js) if block_given?
       end
 
@@ -32,17 +32,7 @@ module MapLayers
 
       #Outputs in JavaScript the creation of a OpenLayers.Map object
       def create
-        #"new OpenLayers.Map('#{@container}', #{JsWrapper::javascriptify_variable(@options)})"
-        OpenLayers::Map.new(@container, @options) #.to_javascript
-      end
-
-      def js(options = {})
-        #@js << assign_to(@container)
-pp "####################### JS"
-pp "container "
-pp @container
-        @js << JsVar.new(@container).assign(create)
-        @js
+        OpenLayers::Map.new(variable, @options)
       end
     end
 

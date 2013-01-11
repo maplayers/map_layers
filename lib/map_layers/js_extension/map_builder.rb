@@ -5,26 +5,21 @@ module MapLayers
 
     class MapBuilder
       include JsWrapper
-      attr_reader :container, :map, :map_handler
+      attr_reader :map, :map_handler
 
       def initialize(map_name, options = {}, &block)
         @js = JsGenerator.new
-        @container = map_name
+        self.variable = map_name
         @map = Map.new(map_name, options)
         @map_handler = MapHandler.new(@map, options)
 
-        #@js << "// MAP BEGIN"
         @js << @map.js
-        #@js << "// MAP END"
-        #@js << "// MAP_HANDLER BEGIN"
         @js << @map_handler.js
-        #@js << "// MAP_HANDLER END"
-        #yield(@map, @map_handler, @js) if block_given?
         yield(self, @js) if block_given?
       end
 
       def create_vector_layer(name, url, options = {})
-        projection = options[:projection] || JsExpr.new("#{@map.container}.displayProjection")
+        projection = options[:projection] || JsExpr.new("#{@map.variable}.displayProjection")
         format = options[:format] || nil
         protocol = url.nil? ? {} : {
             :strategies => [OpenLayers::Strategy::Fixed.new], #, OpenLayers::Strategy::Cluster.new],
@@ -40,9 +35,8 @@ module MapLayers
       end
 
       def replace_vector_layer(name, url, options = {})
-        js = JsGenerator.new(:included => true)
-        #map_handler.destroyLayer('pikts');
-        js << JsVar.new(@map_handler.container).destroy_layer(name)
+        js = JsGenerator.new
+        js << JsVar.new(@map_handler.variable).destroy_layer(name)
         js << add_vector_layer(name, url, options)
 
         js.to_s.html_safe
@@ -54,7 +48,7 @@ module MapLayers
         format = options[:format] || :kml
         layer_name = name.parameterize
 
-        js = JsGenerator.new(:included => true)
+        js = JsGenerator.new
 
         frmt = case format
         when :georss
@@ -67,11 +61,8 @@ module MapLayers
 
         @map.variables << layer_name
 
-        #js.assign(layer_name, layer) #, :declare => !no_global)
         js << JsVar.new(layer_name).assign(layer)
-        js << JsVar.new(@map.container).add_layer(JsVar.new(layer_name))
-#pp JsVar.new(@map.container).add_layer(JsVar.new(layer_name)).class
-        #js << add_map_handler(name, options) unless no_controls
+        js << JsVar.new(@map.variable).add_layer(JsVar.new(layer_name))
 
         js.to_s.html_safe
       end
@@ -79,23 +70,23 @@ module MapLayers
 
 
       def to_js(options = {})
-        method_name = "map_layers_init_#{container}"
+        method_name = "map_layers_init_#{variable}"
 
         variables = []
+        # map js variables
+        variables << map.variable
         variables.concat(map.variables)
-        variables.concat(map_handler.variables)
+        # map_handler js variable
+        variables << map_handler.variable
 
         js = JsGenerator.new #(:included => true)
 
-        #variables.each do |v|
-        #  js << declare(v)
-        #end
+        # declare variables
         js << declare(variables.join(','))
 
-        js << JsExpr.new("#{@container} = null")
-        js << "function #{method_name}() {\nif (#{@container} == null) {\n#{@js.to_s}}\n}"
-
-        #js << "#{method_name}()"
+        # init builder variable to null, to avoid multiple map loading
+        js << JsExpr.new("#{variable} = null")
+        js << "function #{method_name}() {\nif (#{variable} == null) {\n#{@js.to_s}}\n}"
 
         js.to_s.html_safe
       end

@@ -1,14 +1,9 @@
 module MapLayers
   module OpenLayers
     # Javascriptify missing constant
-    def self.const_missing(sym)
-      if OpenLayers.const_defined?(sym)
-        OpenLayers.const_get(sym)
-      else
-        OpenLayers.const_set(sym, Class.new(MapLayers::JsExtension::JsClass))
-      end
-    end
+    extend MapLayers::JsExtension::JsClassMissingConstWrapper
 
+    ESSAI = MapLayers::OpenLayers::Layer::Google.new("Google Street", {:spherical_mercator => true})
     GOOGLE = OpenLayers::Layer::Google.new("Google Street", {:spherical_mercator => true})
     GOOGLE_SATELLITE = OpenLayers::Layer::Google.new("Google Satelite", {:spherical_mercator => true, :type => JsExtension::JsExpr.new('google.maps.MapTypeId.SATELLITE')})
     GOOGLE_HYBRID = OpenLayers::Layer::Google.new("Google Hybrid", {:spherical_mercator => true, :type => JsExtension::JsExpr.new('google.maps.MapTypeId.HYBRID')})
