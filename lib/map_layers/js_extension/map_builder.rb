@@ -6,15 +6,23 @@ module MapLayers
     class MapBuilder
       include JsWrapper
       attr_reader :map, :map_handler
+      attr_reader :options
+      attr_reader :no_init
 
       def initialize(map_name, options = {}, &block)
-        @js = JsGenerator.new
         self.variable = map_name
+        @no_init = options[:no_init] || false
+
+        @js = JsGenerator.new
+
         @map = Map.new(map_name, options)
         @map_handler = MapHandler.new(@map, options)
 
-        @js << @map.js
-        @js << @map_handler.js
+        unless no_init
+          @js << @map.js
+          @js << @map_handler.js
+        end
+
         yield(self, @js) if block_given?
       end
 
@@ -79,16 +87,20 @@ module MapLayers
         # map_handler js variable
         variables << map_handler.variable
 
-        js = JsGenerator.new #(:included => true)
+        js_gen = JsGenerator.new #(:included => true)
 
-        # declare variables
-        js << declare(variables.join(','))
+        if no_init
+          js_gen = @js
+        else
+          # declare variables
+          js_gen << declare(variables.join(','))
 
-        # init builder variable to null, to avoid multiple map loading
-        js << JsExpr.new("#{variable} = null")
-        js << "function #{method_name}() {\nif (#{variable} == null) {\n#{@js.to_s}}\n}"
+          # init builder variable to null, to avoid multiple map loading
+          js_gen << JsExpr.new("#{variable} = null")
+          js_gen << "function #{method_name}() {\nif (#{variable} == null) {\n#{@js.to_s}}\n}"
+        end
 
-        js.to_s.html_safe
+        js_gen.to_s.html_safe
       end
 
       def to_html(options = {})
