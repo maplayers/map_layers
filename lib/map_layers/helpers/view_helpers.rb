@@ -1,6 +1,6 @@
 module MapLayers
   # Provides methods to generate HTML tags and JavaScript code
-  module ViewHelpers
+  module ViewHelper
     # Insert javascript include tags
     #
     # * options[:google] with GMAPS Key: Include Google Maps

@@ -15,9 +15,9 @@ module MapLayers
 
   class Railtie
     def self.insert
-      #ActionController::Base.send(:include, MapLayers::JsExtensions)
-      #ActionView::Base.send(:include, MapLayers::JsExtensions)
-      ActionView::Base.send(:include, MapLayers::ViewHelpers)
+      #ActionController::Base.send(:include, MapLayers::JsExtension)
+      #ActionView::Base.send(:include, MapLayers::JsExtension)
+      ActionView::Base.send(:include, MapLayers::ViewHelper)
 
       Mime::Type.register "application/vnd.google-earth.kml+xml", :kml
       Mime::Type.register "application/gpx+xml", :gpx

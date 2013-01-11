@@ -9,33 +9,33 @@ describe MapLayers::JsWrapper do
   end
 
   describe ".javascriptify_variable" do
-    
+
     it "should return a javascript variable mapping object" do
       map = MapLayers::Map.new("div")
       MapLayers::JsWrapper::javascriptify_variable(map).should == map.to_javascript
     end
 
-    it "should return a javascript numeric variable" do                                           
+    it "should return a javascript numeric variable" do
       MapLayers::JsWrapper::javascriptify_variable(123.4).should == "123.4"
     end
 
-    it "should return a javascript array variable" do                                           
+    it "should return a javascript array variable" do
       map = MapLayers::Map.new("div")
       MapLayers::JsWrapper::javascriptify_variable([123.4,map,[123.4,map]]).should == "[123.4,#{map.to_javascript},[123.4,#{map.to_javascript}]]"
     end
 
-    it "should return a javascript hash variable" do     
+    it "should return a javascript hash variable" do
       map = MapLayers::Map.new("div")
       test_str = MapLayers::JsWrapper::javascriptify_variable("hello" => map, "chopotopoto" => [123.55,map])
-      test_str.should == "{hello : #{map.to_javascript},chopotopoto : [123.55,#{map.to_javascript}]}" 
+      test_str.should == "{hello : #{map.to_javascript},chopotopoto : [123.55,#{map.to_javascript}]}"
     end
   end
 
   describe ".declare" do
-    it "should declare a latlng variable" do     
+    it "should declare a latlng variable" do
       point = OpenLayers::LonLat.new(123.4,123.6)
       point.declare("point").should == "var point = new OpenLayers.LonLat(123.4,123.6);"
-      point.variable.should == "point" 
+      point.variable.should == "point"
     end
 
   end
@@ -44,7 +44,7 @@ end
 
 describe MapLayers::JsVar do
 
-  it "should test array indexing" do     
+  it "should test array indexing" do
     obj = MapLayers::JsVar.new("obj")
     obj[0].variable.should == "obj[0]"
   end
@@ -53,7 +53,7 @@ end
 
 describe MapLayers::JsGenerator do
 
-  it "should test js generator" do     
+  it "should test js generator" do
     @map = MapLayers::Map.new("map")
     js = MapLayers::JsGenerator.new
     js.assign("markers", OpenLayers::Layer::Markers.new('Markers'))
@@ -74,7 +74,7 @@ EOS
     js.to_s.should == html
   end
 
-  it "should test google example" do     
+  it "should test google example" do
     @map = MapLayers::Map.new("map") do |map, page|
       page << map.add_layer(MapLayers::GOOGLE)
       page << map.zoom_to_max_extent()
@@ -90,7 +90,7 @@ EOS
     @map.to_html.should == html
   end
 
-  it "should test wms example" do    
+  it "should test wms example" do
     @map = MapLayers::Map.new("map") do |map,page|
       page << map.add_control(OpenLayers::Control::LayerSwitcher.new)
       page << map.add_layer(OpenLayers::Layer::WMS.new( "OpenLayers WMS",
@@ -109,7 +109,7 @@ EOS
     @map.to_html.should == html
   end
 
-  it "should test kml example" do    
+  it "should test kml example" do
     @map = MapLayers::Map.new("map") do |map,page|
       page << map.add_layer(OpenLayers::Layer::GML.new("Places KML", "/places/kml", {:format=> MapLayers::JsExpr.new("OpenLayers.Format.KML")}))
     end
@@ -123,7 +123,7 @@ EOS
     @map.to_html.should == html
   end
 
-  it "should test wfs example" do    
+  it "should test wfs example" do
     @map = MapLayers::Map.new("map_div") do |map, page|
       page << map.add_layer(OpenLayers::Layer::WFS.new("Places WFS", "/places/wfs", {:typename => "places"}, {:featureClass => MapLayers::JsExpr.new("OpenLayers.Feature.WFS")}))
     end
@@ -136,5 +136,5 @@ map_div.addLayer(new OpenLayers.Layer.WFS("Places WFS","/places/wfs",{typename :
 EOS
     @map.to_html.should == html
   end
-  
+
 end

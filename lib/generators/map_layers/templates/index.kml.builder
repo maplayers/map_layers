@@ -62,6 +62,9 @@ xml.kml(:xmlns=>"http://earth.google.com/kml/2.2") do
 
             xml.styleUrl "#sunny_icon_pair"
 
+            # place link
+            #xml.link browse_path(feature.url)
+
             # place geoloc
             altitude = feature.respond_to?('altitude') ? feature.altitude : 0
             xml.Point do

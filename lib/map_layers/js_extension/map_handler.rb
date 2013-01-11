@@ -1,16 +1,17 @@
 module MapLayers
-  module JsExtensions
+  module JsExtension
 
     class MapHandler
       include JsWrapper
       attr_reader :variables, :container
 
       def initialize(map, options = {}, &block)
+        @container = options[:name] || "#{map.container}_handler"
+        set_variable container
         default_control = options[:default_control] || 'select'
         default_control = 'select' unless %w(select point path polygon drag).include?(default_control)
 
         @map = map.container
-        @container = options[:name] || "#{map.container}_handler"
 
         # js variables
         @variables = [@container]
@@ -25,11 +26,12 @@ module MapLayers
       def create
         #"new OpenLayers.Map('#{@container}', #{JsWrapper::javascriptify_variable(@options)})"
         JsExpr.new("new MapLayers.SimpleMapHandler(#{@map})")
+        #SimpleMapHandler.new(@map).to_javascript
       end
 
-      #Outputs the initialization code for the map
-      def to_js(options = {})
-        @js << assign_to(@container)
+      def js(options = {})
+        @js << JsVar.new(@container).assign(create)
+        @js
       end
     end
 

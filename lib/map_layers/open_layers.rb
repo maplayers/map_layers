@@ -5,17 +5,17 @@ module MapLayers
       if OpenLayers.const_defined?(sym)
         OpenLayers.const_get(sym)
       else
-        OpenLayers.const_set(sym, Class.new(MapLayers::JsExtensions::JsClass))
+        OpenLayers.const_set(sym, Class.new(MapLayers::JsExtension::JsClass))
       end
     end
 
     GOOGLE = OpenLayers::Layer::Google.new("Google Street", {:spherical_mercator => true})
-    GOOGLE_SATELLITE = OpenLayers::Layer::Google.new("Google Satelite", {:spherical_mercator => true, :type => JsExtensions::JsExpr.new('google.maps.MapTypeId.SATELLITE')})
-    GOOGLE_HYBRID = OpenLayers::Layer::Google.new("Google Hybrid", {:spherical_mercator => true, :type => JsExtensions::JsExpr.new('google.maps.MapTypeId.HYBRID')})
-    GOOGLE_PHYSICAL = OpenLayers::Layer::Google.new("Google Physical", {:spherical_mercator => true, :type => JsExtensions::JsExpr.new('google.maps.MapTypeId.TERRAIN')})
-    VE_ROAD = OpenLayers::Layer::VirtualEarth.new("Virtual Earth Raods", {:type => JsExtensions::JsExpr.new('VEMapStyle.Road')})
-    VE_AERIAL = OpenLayers::Layer::VirtualEarth.new("Virtual Earth Aerial", {:type => JsExtensions::JsExpr.new('VEMapStyle.Aerial')})
-    VE_HYBRID = OpenLayers::Layer::VirtualEarth.new("Virtual Earth Hybrid", {:type => JsExtensions::JsExpr.new('VEMapStyle.Hybrid')})
+    GOOGLE_SATELLITE = OpenLayers::Layer::Google.new("Google Satelite", {:spherical_mercator => true, :type => JsExtension::JsExpr.new('google.maps.MapTypeId.SATELLITE')})
+    GOOGLE_HYBRID = OpenLayers::Layer::Google.new("Google Hybrid", {:spherical_mercator => true, :type => JsExtension::JsExpr.new('google.maps.MapTypeId.HYBRID')})
+    GOOGLE_PHYSICAL = OpenLayers::Layer::Google.new("Google Physical", {:spherical_mercator => true, :type => JsExtension::JsExpr.new('google.maps.MapTypeId.TERRAIN')})
+    VE_ROAD = OpenLayers::Layer::VirtualEarth.new("Virtual Earth Raods", {:type => JsExtension::JsExpr.new('VEMapStyle.Road')})
+    VE_AERIAL = OpenLayers::Layer::VirtualEarth.new("Virtual Earth Aerial", {:type => JsExtension::JsExpr.new('VEMapStyle.Aerial')})
+    VE_HYBRID = OpenLayers::Layer::VirtualEarth.new("Virtual Earth Hybrid", {:type => JsExtension::JsExpr.new('VEMapStyle.Hybrid')})
     YAHOO =  OpenLayers::Layer::Yahoo.new("Yahoo Street")
     YAHOO_SATELLITE = OpenLayers::Layer::Yahoo.new("Yahoo Satelite", {:type => :YAHOO_MAP_SAT})
     YAHOO_HYBRID = OpenLayers::Layer::Yahoo.new("Yahoo Hybrid", {:type => :YAHOO_MAP_HYB})

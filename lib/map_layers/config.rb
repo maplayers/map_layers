@@ -1,4 +1,4 @@
-module MapLayers 
+module MapLayers
   class Config
     attr_reader :model_id, :id, :lat, :lon, :geometry, :text
 
