@@ -1,5 +1,5 @@
 // simple map handler
-MapLayers.SimpleMapHandler = function(map) {
+OpenLayersHandlers.SimpleMapHandler = function(map) {
   this.map = map;
   this.controls = {};
   this.dragCallbacks = {};

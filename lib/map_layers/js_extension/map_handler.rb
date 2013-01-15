@@ -15,11 +15,9 @@ module MapLayers
         yield(self, @js) if block_given?
       end
 
-      #Outputs in JavaScript the creation of a OpenLayers.Map object
+      #Outputs in JavaScript the creation of a OpenLayersHandlers.SimpleMapHandler object
       def create
-        JsExpr.new("new MapLayers.SimpleMapHandler(#{@map})")
-        # OPTIMIZE: find a way to return such line
-        #SimpleMapHandler.new(@map).to_javascript
+        OpenLayersHandlers::SimpleMapHandler.new(JsVar.new(@map))
       end
     end
 

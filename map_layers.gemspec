@@ -16,6 +16,7 @@ Gem::Specification.new do |gem|
   gem.version       = MapLayers::VERSION
 
   gem.add_development_dependency 'rails', '~> 3.2.0'
+  gem.add_development_dependency 'rake-notes' # tmp
   #gem.add_development_dependency(%q<rspec>, ["~> 2.0.0"])
   #gem.add_development_dependency(%q<rspec-rails>, ["~> 2.0.0"])
 

@@ -1,5 +1,5 @@
 module MapLayers
-  module SimpleMapHandler
+  module OpenLayersHandlers
     # Javascriptify missing constant
     extend MapLayers::JsExtension::JsClassMissingConstWrapper
 

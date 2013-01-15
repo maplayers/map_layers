@@ -1,6 +1,8 @@
 #!/usr/bin/env rake
 require "bundler/gem_tasks"
 
+require 'rake/notes/rake_task' # notes (TODO, FIXME, OPTIMIZE)
+
 require 'rake/testtask'
 Rake::TestTask.new do |t|
   t.libs << 'lib/map_layers'

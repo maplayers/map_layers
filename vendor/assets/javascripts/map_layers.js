@@ -1,10 +1,10 @@
 /*
  *= require_self
- *= require_tree ./map_layers
+ *= require_tree ./open_layers_handlers
 */
 
 // declare namespace
-var MapLayers = {};
+var OpenLayersHandlers = {};
 
 // TODO: add support for multiples map
 function mapLayersLoading() {
