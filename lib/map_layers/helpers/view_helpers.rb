@@ -19,7 +19,7 @@ module MapLayers
       scripts = []
       scripts << "http://maps.google.com/maps/api/js?v=3&sensor=false" if options.has_key?(:google) || layers_added.include?(:google)
       scripts << "http://clients.multimap.com/API/maps/1.1/#{options[:multimap]}" if options.has_key?(:multi_map) || layers_added.include?(:multi_map)
-      scripts << "http://dev.virtualearth.net/mapcontrol/v3/mapcontrol.js" if options.has_key?(:virtual_earth) || layers_added.include?(:virtual_earth)
+      #scripts << "http://dev.virtualearth.net/mapcontrol/v3/mapcontrol.js" if options.has_key?(:virtual_earth) || layers_added.include?(:virtual_earth)
       scripts << "http://api.maps.yahoo.com/ajaxymap?v=3.0&appid=#{options[:yahoo]}" if options.has_key?(:yahoo) || layers_added.include?(:yahoo)
 
       scripts << ml_script unless ml_script.nil?
@@ -35,13 +35,15 @@ module MapLayers
       onload = options[:onload] || false
 
       img_path = options[:img_path] || '/assets/OpenLayers/'
-      rails_relative_url_root = controller.config.relative_url_root
-      img_path=(Pathname(rails_relative_url_root||"") +img_path).cleanpath.to_s
-      proxy = options[:proxy] || controller.controller_name
+      unless controller.nil?
+        rails_relative_url_root = controller.config.relative_url_root
+        img_path=(Pathname(rails_relative_url_root||"") +img_path).cleanpath.to_s
+        proxy = options[:proxy] || controller.controller_name
+      end
 
       scripts = []
       scripts << "OpenLayers.ImgPath='#{img_path}/';"
-      scripts << "OpenLayers.ProxyHost='/#{proxy}/proxy?url=';"
+      scripts << "OpenLayers.ProxyHost='/#{proxy}/proxy?url=';" unless proxy.nil?
       scripts << map_builder.to_js
       scripts << %Q[$(document).ready(function() { map_layers_init_#{map_builder.map.variable}(); });] if onload
       scripts << (capture(&block) % { :map_handler => map_builder.map_handler.variable, :map => map_builder.map.variable  } rescue "alert('error');") if block_given?

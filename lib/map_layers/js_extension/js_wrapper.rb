@@ -138,6 +138,7 @@ module MapLayers
         expr.to_s
       end
       alias_method :to_str, :to_s
+      alias_method :variable, :expr
     end
 
 
@@ -190,6 +191,7 @@ module MapLayers
       def initialize(options = {})
         @lines = []
       end
+
       def <<(javascript)
         case javascript
           when JsGenerator
@@ -200,6 +202,11 @@ module MapLayers
             @lines << javascript
         end
       end
+
+      def assign(variable, value)
+        self << JsVar.new(variable).assign(value)
+      end
+
       def to_s
         @lines.join("\n")
       end

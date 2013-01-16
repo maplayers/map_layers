@@ -3,21 +3,25 @@
 MapLayers makes it easy to integrate a dynamic map in a Rails application. It can display map tiles and markers loaded from many different data sources.
 The included map viewer is [OpenLayers](http://www.openlayers.org/).
 With MapLayers you can :  
-- display and publish ActiveRecord models with geographic data.
-- make your own map model
+- create map using all available options from openlayers
+- add/remove/show/hide layers
+- trigger events on maps
 
 Getting Started
 ---------------
 
 Install the latest version of the plugin:
-  sudo gem install map_layers
-Or with bundler add to your Gemfile : 
-gem "map_layers"
 
-Create a controller and a view
+    gem install map_layers
+
+Or with bundler add to your Gemfile : 
+
+    gem "map_layers"
+
+Generate a kml renderer
 
 ``` bash
-  ./script/generate controller Map index
+rails generate map_layers:builder --builder_type kml
 ```
 
 Initialization of the map
@@ -26,56 +30,99 @@ Initialization of the map
 Add the map viewer initialization to the index action in the controller:
 
 ``` ruby  
-  @map = MapLayers::Map.new("map") do |map, page|
-    page << map.add_layer(MapLayers::GOOGLE)
-    page << map.zoom_to_max_extent()
-  end
+@map = MapLayers::JsExtension::MapBuilder.new("map") do |builder, page|
+  page << builder.map.add_layer(MapLayers::OpenLayers::OSM_MAPNIK)
+  page << builder.map.zoom_to_max_extent()
+end
 ```
 
 ``` ruby 
-Add this to the head of your view:
-  <%= map_layers_includes :google => "ABQIAAAA3HdfrnxFAPWyY-aiJUxmqRTJQa0g3IQ9GZqIMmInSLzwtGDKaBQ0KYLwBEKSM7F9gCevcsIf6WPuIQ" %>
+Add this to your view:
+<!-- html map container -->
+<%= map_layers_container(@map, :class => 'small_size', :include_loading => true) %>
+
+<!-- map layers js scripts -->
+<%= map_layers_includes(@map, :onload => true) %>
 ```
-
-Put a map in the body your view:
-  <div id="map" style="width: 512px; height: 256px;"></div>
-
-  <%= @map.to_html %>
-
-Test your basic map with <tt>http://localhost:3000/map</tt>
 
 Multiple layers
 ---------------
 
-Add a second layer and some more controls in the controller action:
+Add a second map layer, a vector layer and some more controls in the controller action:
 
 ``` ruby
-  @map = MapLayers::Map.new("map") do |map, page|
-    page << map.add_layer(MapLayers::GOOGLE)
-    page << map.add_layer(MapLayers::YAHOO_HYBRID)
+# app/controller/your_controller.rb
+@map = MapLayers::JsExtension::MapBuilder.new("map") do |builder, page|
+  page << builder.map.add_layer(MapLayers::OpenLayers::OSM_MAPNIK)
+  page << builder.map.add_layer(MapLayers::OpenLayers::GOOGLE)
 
-    page << map.add_control(Control::LayerSwitcher.new)
-    page << map.add_control(Control::Permalink.new('permalink'))
-    page << map.add_control(Control::MousePosition.new)
+  page << builder.map.add_control(MapLayers::OpenLayers::Control::LayerSwitcher.new)
+  page << builder.map.add_control(MapLayers::OpenLayers::Control::Permalink.new('permalink'))
+  page << builder.map.add_control(MapLayers::OpenLayers::Control::MousePosition.new)
 
-    page << map.zoom_to_max_extent()
-  end
+  # add a vector layer to read from kml file
+  page << builder.add_vector_layer('pikts', '/pictures.kml', :format => :kml)
+
+  # initialize select, point, path, polygon and drag control for features
+  page << builder.map_handler.initialize_controls('pikts')
+
+  # switch control for layer, 'select' display popup on feature
+  page << builder.map_handler.toggle_control('pikts', 'select')
+
+  page << builder.map.zoom_to_max_extent()
+end
+
 ```
 
-Add the Yahoo Javascript library to the includes:
+Add more options to your new map in the view
 
 ``` ruby
-  <%= map_layers_includes :google => "ABQIAAAA3HdfrnxFAPWyY-aiJUxmqRTJQa0g3IQ9GZqIMmInSLzwtGDKaBQ0KYLwBEKSM7F9gCevcsIf6WPuIQ", :yahoo => "euzuro-openlayers" %>
+<!-- html map container -->
+<%= map_layers_container(@map, :class => 'small_size', :include_loading => true) do %>
+  <!-- render this block inside the container -->
+  <%= map_layers_localize_form_tag(localize_pictures_path) do |f| %>
+    <%= text_field_tag(:search, params[:search]) %>
+    <%= submit_tag(t('helpers.map_layers_localize_form.search')) %>
+  <% end %>
+<% end %>
+
+<!-- map layers js scripts -->
+<%= map_layers_includes(@map, :onload => true) do %>
+$(document).ready(function() {
+
+  // setDragCallback handle feature drag events
+  %{map_handler}.setDragCallback('onComplete', function(feature) {
+    // and allows you to fill a form on feature drag
+    fillFormWithFeature(feature);
+  });
+
+  // you may add openlayers js code too (%{map} and %{map_handler} are replaced the corresponding js objects)
+  %{map}.events.register("moveend", map, function() {
+    var center = %{map}.getCenter().clone().transform( %{map}.getProjectionObject(),new OpenLayers.Projection("EPSG:4326") );
+    alert("moveend : " + center);
+    feature = %{map_handler}.addFeature('pikts', center.lat, center.lon);
+    fillFormWithLonlat(feature);
+
+    // add features to each map corners
+    bounds = map.getExtent().toGeometry().getBounds().transform( map.getProjectionObject(),new OpenLayers.Projection("EPSG:4326") );
+    %{map_handler}.addFeature('pikts', bounds.top, bounds.left);
+    %{map_handler}.addFeature('pikts', bounds.top, bounds.right);
+    %{map_handler}.addFeature('pikts', bounds.bottom, bounds.left);
+    %{map_handler}.addFeature('pikts', bounds.bottom, bounds.right);
+  });
+
+});
+
+<% end %>
 ```
 
 There are many more predefined layer types available:
-GOOGLE_SATELLITE, GOOGLE_HYBRID, GOOGLE_PHYSICAL, VE_ROAD, VE_AERIAL, VE_HYBRID, YAHOO, YAHOO_SATELLITE, YAHOO_HYBRID, MULTIMAP, OSM_MAPNIK, OSM_TELASCIENCE, GEOPOLE_OSM, NASA_GLOBAL_MOSAIC, BLUE_MARBLE_NG, WORLDWIND, WORLDWIND_URBAN, WORLDWIND_BATHY
 
-To include all Javascript APIs, insert your API keys in the following statement:
-
-``` ruby
-  <%= map_layers_includes :google => "ABQIAAAA3HdfrnxFAPWyY-aiJUxmqRTJQa0g3IQ9GZqIMmInSLzwtGDKaBQ0KYLwBEKSM7F9gCevcsIf6WPuIQ", :multimap => "metacarta_04", :virtualearth => true, :yahoo => "euzuro-openlayers" %>
-```
+  - OSM_MAPNIK
+  - GOOGLE
+  - GOOGLE_SATELLITE
+  - GOOGLE_HYBRID
+  - GOOGLE_PHYSICAL
 
 Updating the map
 ----------------
@@ -85,6 +132,29 @@ First we add a link in the view:
 
 ``` ruby
   <%= link_to_remote "Add marker", :url => { :action => "add_marker" } %>
+<%= map_layers_container(@map, :class => 'small_size', :include_loading => true) do %>
+  <!-- render this block inside the container -->
+  <%= map_layers_localize_form_tag(localize_pictures_path) do |f| %>
+    <%= text_field_tag(:search, params[:search]) %>
+    <%= submit_tag(t('helpers.map_layers_localize_form.search')) %>
+  <% end %>
+<% end %>
+```
+
+``` ruby
+  def localize
+    @search = Geocoder.search(params[:search])
+
+    @map = MapLayers::JsExtension::MapBuilder.new("map", :no_init => true) do |builder, page|
+      feat = MapLayers::JsExtension::JsVar.new('feat')
+      coordinates = @search[0].coordinates
+
+      page << builder.map_handler.remove_features('pikts')
+      page << feat.assign(builder.map_handler.add_feature('pikts', coordinates[0], coordinates[1]))
+      page << builder.map_handler.add_feature_attributes(feat, {:name => @search[0].address.gsub(/\'/, '\''), :description => 'Move me to update form fields', :link => 'http://www.google.nl'})
+      page << builder.map_handler.set_center_on_feature(feat, 15)
+    end
+  end
 ```
 
 This requires including the prototype library:

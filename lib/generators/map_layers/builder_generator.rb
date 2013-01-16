@@ -14,18 +14,18 @@ DESC
       # rails generate map_layers:builder -b kml
       def copy_builder_file
         case builder_type = options[:builder_type].to_s
-          when "kml", "georss"
+          when "kml", "georss", "gpx"
             create_builder_for(builder_type)
           else
-            create_builder_for(:wps)
+            create_builder_for(:kml)
         end
       end
 
       protected
 
       def create_builder_for(engine)
+        # TODO : add more builders
         engine = :kml
-        #template 'map_layers_config.rb', "tmp/#{engine}_config.rb"
         template "index.#{engine}.builder", "app/views/map_layers/index.#{engine}.builder"
       end
     end

@@ -58,7 +58,10 @@ module MapLayers
 
         js = JsGenerator.new
 
+        # TODO : add GPX support
         frmt = case format
+        #when :gpx
+        #  OpenLayers::Format::GPX.new
         when :georss
         else # :kml is the default
           OpenLayers::Format::KML.new({:extractStyles => true, :extractAttributes => true})
@@ -97,7 +100,7 @@ module MapLayers
 
           # init builder variable to null, to avoid multiple map loading
           js_gen << JsExpr.new("#{variable} = null")
-          js_gen << "function #{method_name}() {\nif (#{variable} == null) {\n#{@js.to_s}}\n}"
+          js_gen << "function #{method_name}() {\nif (#{variable} == null) {\n#{@js.to_s}\n}\n}"
         end
 
         js_gen.to_s.html_safe
