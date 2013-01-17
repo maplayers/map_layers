@@ -238,6 +238,12 @@ OpenLayersHandlers.SimpleMapHandler = function(map) {
     this.map.removeLayer(layer);
     layer.destroy();
   }
+
+  this.getMapCenter = function() {
+    var centerLonLat = this.map.getCenter().clone().transform( this.map.getProjectionObject(),new OpenLayers.Projection("EPSG:4326") );
+    center = [centerLonLat.lat,centerLonLat.lon];
+    return center;
+  }
 };
 
 
