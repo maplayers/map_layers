@@ -48,6 +48,11 @@ OpenLayersHandlers.SimpleMapHandler = function(map) {
     layer.setVisibility(!visible);
   }
 
+  this.getLayerFeatureLength = function(layerName) {
+    var layer = this.map.getLayersByName(layerName)[0];
+    return layer.features.length;
+  }
+
   this.getLayerFeatureByNb = function(layerName, feature_nb) {
     var layer = this.map.getLayersByName(layerName)[0];
     var feature = feature_nb != -1 ? layer.features[feature_nb] : layer.features.slice(-1).pop();
@@ -120,14 +125,28 @@ OpenLayersHandlers.SimpleMapHandler = function(map) {
     this.removeFeaturePopup(event.feature);
   }
 
-  this.initializeControls = function(layerName) {
-    var layer = this.map.getLayersByName(layerName)[0];
+  this.initializeControls = function(controlsName, layersNames) {
+    // controlsName OR layers attribute
+    var layers = new Array();
+
+    // if layersNames is just a string, convert to array
+    if (typeof(layersNames) == 'string') {
+      layersNames = new Array(layersNames);
+    }
+
+    for (var idx in layersNames) {
+      var layer_by_name = this.map.getLayersByName(layersNames[idx]);
+      if (layer_by_name.length > 0) {
+        layers.push(layer_by_name[0]);
+      }
+    }
+
     var ctrls = {
-      select : new OpenLayers.Control.SelectFeature(layer),
-      point : new OpenLayers.Control.DrawFeature(layer, OpenLayers.Handler.Point),
-      path : new OpenLayers.Control.DrawFeature(layer, OpenLayers.Handler.Path),
-      polygon : new OpenLayers.Control.DrawFeature(layer, OpenLayers.Handler.Polygon),
-      drag : new OpenLayers.Control.DragFeature(layer, {
+      select : new OpenLayers.Control.SelectFeature(layers),
+      point : new OpenLayers.Control.DrawFeature(layers, OpenLayers.Handler.Point),
+      path : new OpenLayers.Control.DrawFeature(layers, OpenLayers.Handler.Path),
+      polygon : new OpenLayers.Control.DrawFeature(layers, OpenLayers.Handler.Polygon),
+      drag : new OpenLayers.Control.DragFeature(layers, {
         onComplete: function(feature) {
           if (this.dragCallbacks['onComplete'] !== undefined) { this.dragCallbacks['onComplete'](feature); }
         }.bind(this),
@@ -140,25 +159,27 @@ OpenLayersHandlers.SimpleMapHandler = function(map) {
       })
     }
 
-    layer.events.on({
-      featureselected: this.onFeatureSelect,
-      featureunselected: this.onFeatureUnselect,
-      scope : this
-    });
+    for (var idx in layers) {
+      var layer = layers[idx];
+      layer.events.on({
+        featureselected: this.onFeatureSelect,
+        featureunselected: this.onFeatureUnselect,
+        scope : this
+      });
+    }
 
-    this.controls[layerName] = ctrls;
-
-    for (var key in this.controls[layerName])
+    this.controls[controlsName] = ctrls;
+    for (var key in this.controls[controlsName])
     {
-      this.map.addControl(this.controls[layerName][key])
+      this.map.addControl(this.controls[controlsName][key])
     }
   }
 
-  this.toggleControl = function(layer, ctrl) {
-    for(key in this.controls[layer])
+  this.toggleControl = function(controlsName, ctrl) {
+    for(key in this.controls[controlsName])
     {
-      if(ctrl == key) { this.controls[layer][key].activate(); }
-      else { this.controls[layer][key].deactivate(); }
+      if(ctrl == key) { this.controls[controlsName][key].activate(); }
+      else { this.controls[controlsName][key].deactivate(); }
     }
   }
 
