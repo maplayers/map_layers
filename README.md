@@ -196,32 +196,32 @@ includes a helper to add localize method in a standardized way.
 The localization method is up to you, here is a simple example using [Geocoder gem](https://github.com/alexreisner/geocoder).
 
 ``` ruby
-  def localize
-    @search = Geocoder.search(params[:search])
+def localize
+  @search = Geocoder.search(params[:search])
 
-    @map = MapLayers::JsExtension::MapBuilder.new("map", :no_init => true) do |builder, page|
-      feat = MapLayers::JsExtension::JsVar.new('feat')
-      coordinates = @search[0].coordinates
+  @map = MapLayers::JsExtension::MapBuilder.new("map", :no_init => true) do |builder, page|
+    feat = MapLayers::JsExtension::JsVar.new('feat')
+    coordinates = @search[0].coordinates
 
-      # remove all features from the layer
-      page << builder.map_handler.remove_features('pikts')
+    # remove all features from the layer
+    page << builder.map_handler.remove_features('pikts')
 
-      # add the new one at the right coordinates
-      page << feat.assign(builder.map_handler.add_feature('pikts', coordinates[0], coordinates[1]))
+    # add the new one at the right coordinates
+    page << feat.assign(builder.map_handler.add_feature('pikts', coordinates[0], coordinates[1]))
 
-      # add description to this point
-      page << builder.map_handler.add_feature_attributes(feat, {:name => @search[0].address.gsub(/\'/, '\''), :description => 'Move me to update form fields', :link => 'http://www.google.fr'})
+    # add description to this point
+    page << builder.map_handler.add_feature_attributes(feat, {:name => @search[0].address.gsub(/\'/, '\''), :description => 'Move me to update form fields', :link => 'http://www.google.fr'})
 
-      # and center map on this feature
-      page << builder.map_handler.set_center_on_feature(feat, 15)
-    end
+    # and center map on this feature
+    page << builder.map_handler.set_center_on_feature(feat, 15)
   end
+end
 ```
 
 License
 -------
 
-The MapLayers plugin for Rails is released under the [AGPL](LICENSE "GNU AFFERO GENERAL PUBLIC LICENSE") license.
+The MapLayers plugin for Rails is released under the [AGPL](http://www.gnu.org/licenses/agpl-3.0.en.html "GNU AFFERO GENERAL PUBLIC LICENSE") license.
 
 Copyright (c) 2013 La Fourmi Immo.
 Including original code Copyright (c) 2011 Luc Donnet, Dryade.
