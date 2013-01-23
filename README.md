@@ -18,11 +18,6 @@ Or with bundler add to your Gemfile :
 
     gem "map_layers"
 
-Generate a kml renderer
-
-``` bash
-rails generate map_layers:builder --builder_type kml
-```
 
 Initialization of the map
 -------------------------
@@ -49,16 +44,62 @@ Add the container and scripts to your view :
 Multiple layers
 ---------------
 
-Add a second map layer, some vector layers and some more controls in the controller action:
+Adding feature may be done manually, from coordinates or using a renderer. This later option allow to localize objects in an easy way.
+Consider the following example, you have pictures taken from all around the world and you want to display them on a map.
+
+Generate a kml renderer
+
+``` bash
+rails generate map_layers:builder --builder_type kml
+```
+
+Now you may want to customize your renderer, even if it may not be necessary.
+Renderer are stored in `app/view/map_layers/`.
+
+By default, the standard renderer allow objects responding to :
+
+  - latitude
+  - longitude
+  - name
+  - description
+  - altitude (replaced by 0 if not found)
+
+If you need something else, other markers or more attributes, customize the renderer.
+
+
+Then you'll need to respond to kml format, do this by adding the following line in the controller.
+
+```
+# app/controllers/pictures_controller.rb
+def index
+  # ...
+
+  respond_to do |format|
+    # ...
+
+    # add this line to respond to format kml
+    format.kml { render 'map_layers/index' }
+  end
+end
+```
+
+And finally display everything on a map, including more layers and some more controls in the controller action:
 
 ``` ruby
 # app/controller/your_controller.rb
 @map = MapLayers::JsExtension::MapBuilder.new("map") do |builder, page|
+  # OpenStreetMap layer
   page << builder.map.add_layer(MapLayers::OpenLayers::OSM_MAPNIK)
+  # Google layer
   page << builder.map.add_layer(MapLayers::OpenLayers::GOOGLE)
 
+  # Add a button to hide/show layers
   page << builder.map.add_control(MapLayers::OpenLayers::Control::LayerSwitcher.new)
+
+  # Add a link for permanent url
   page << builder.map.add_control(MapLayers::OpenLayers::Control::Permalink.new('permalink'))
+
+  # Add mouse coordinates
   page << builder.map.add_control(MapLayers::OpenLayers::Control::MousePosition.new)
 
   # Add a vector layer to read from kml url
