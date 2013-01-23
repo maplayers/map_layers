@@ -2,10 +2,10 @@
 
 MapLayers makes it easy to integrate a dynamic map in a Rails application. It can display map tiles and markers loaded from many different data sources.
 The included map viewer is [OpenLayers](http://www.openlayers.org/).
-With MapLayers you can :  
+With MapLayers you can :
 - create map using all available options from openlayers
 - add/remove/show/hide layers
-- trigger events on maps
+- handle events triggered on maps
 
 Getting Started
 ---------------
@@ -14,7 +14,7 @@ Install the latest version of the plugin:
 
     gem install map_layers
 
-Or with bundler add to your Gemfile : 
+Or with bundler add to your Gemfile :
 
     gem "map_layers"
 
@@ -27,21 +27,22 @@ rails generate map_layers:builder --builder_type kml
 Initialization of the map
 -------------------------
 
-Add the map viewer initialization to the index action in the controller:
+Add the map viewer initialization to the index action in the controller :
 
-``` ruby  
+``` ruby
 @map = MapLayers::JsExtension::MapBuilder.new("map") do |builder, page|
   page << builder.map.add_layer(MapLayers::OpenLayers::OSM_MAPNIK)
   page << builder.map.zoom_to_max_extent()
 end
 ```
 
-``` ruby 
-Add this to your view:
+Add the container and scripts to your view :
+
+```
 <!-- html map container -->
 <%= map_layers_container(@map, :class => 'small_size', :include_loading => true) %>
 
-<!-- map layers js scripts -->
+<!-- map_layers js scripts and if necessary its dependencies -->
 <%= map_layers_includes(@map, :onload => true) %>
 ```
 
@@ -60,14 +61,14 @@ Add a second map layer, a vector layer and some more controls in the controller 
   page << builder.map.add_control(MapLayers::OpenLayers::Control::Permalink.new('permalink'))
   page << builder.map.add_control(MapLayers::OpenLayers::Control::MousePosition.new)
 
-  # add a vector layer to read from kml file
+  # add a vector layer to read from kml url
   page << builder.add_vector_layer('pikts', '/pictures.kml', :format => :kml)
 
   # initialize select, point, path, polygon and drag control for features
-  page << builder.map_handler.initialize_controls('pikts')
+  page << builder.map_handler.initialize_controls('pikts_controls', 'pikts')
 
-  # switch control for layer, 'select' display popup on feature
-  page << builder.map_handler.toggle_control('pikts', 'select')
+  # switch control mode, 'select' display popup on feature
+  page << builder.map_handler.toggle_control('pikts_controls', 'select')
 
   page << builder.map.zoom_to_max_extent()
 end
@@ -76,10 +77,10 @@ end
 
 Add more options to your new map in the view
 
-``` ruby
+```
 <!-- html map container -->
 <%= map_layers_container(@map, :class => 'small_size', :include_loading => true) do %>
-  <!-- render this block inside the container -->
+  <!-- this block is rendered inside the container -->
   <%= map_layers_localize_form_tag(localize_pictures_path) do |f| %>
     <%= text_field_tag(:search, params[:search]) %>
     <%= submit_tag(t('helpers.map_layers_localize_form.search')) %>
@@ -88,35 +89,39 @@ Add more options to your new map in the view
 
 <!-- map layers js scripts -->
 <%= map_layers_includes(@map, :onload => true) do %>
-$(document).ready(function() {
+  $(document).ready(function() {
 
-  // setDragCallback handle feature drag events
-  %{map_handler}.setDragCallback('onComplete', function(feature) {
-    // and allows you to fill a form on feature drag
-    fillFormWithFeature(feature);
+    // you may add openlayers js code (%{map} and %{map_handler} are replaced the corresponding js objects)
+
+    // setDragCallback handle feature drag events
+    %{map_handler}.setDragCallback('onComplete', function(feature) {
+      // and allows you to fill a form on feature drag
+      fillFormWithFeature(feature);
+    });
+
+    // handle map move and add features in the center and each corners on map move
+    %{map}.events.register("moveend", map, function() {
+      var center = %{map}.getCenter().clone().transform( %{map}.getProjectionObject(),new OpenLayers.Projection("EPSG:4326") );
+      alert("moveend : " + center);
+      feature = %{map_handler}.addFeature('pikts', center.lat, center.lon);
+
+      // use any custom js method at your convenience
+      fillFormWithLonlat(feature);
+
+      // add features to each map corners
+      bounds = map.getExtent().toGeometry().getBounds().transform( map.getProjectionObject(),new OpenLayers.Projection("EPSG:4326") );
+      %{map_handler}.addFeature('pikts', bounds.top, bounds.left);
+      %{map_handler}.addFeature('pikts', bounds.top, bounds.right);
+      %{map_handler}.addFeature('pikts', bounds.bottom, bounds.left);
+      %{map_handler}.addFeature('pikts', bounds.bottom, bounds.right);
+    });
+
   });
-
-  // you may add openlayers js code too (%{map} and %{map_handler} are replaced the corresponding js objects)
-  %{map}.events.register("moveend", map, function() {
-    var center = %{map}.getCenter().clone().transform( %{map}.getProjectionObject(),new OpenLayers.Projection("EPSG:4326") );
-    alert("moveend : " + center);
-    feature = %{map_handler}.addFeature('pikts', center.lat, center.lon);
-    fillFormWithLonlat(feature);
-
-    // add features to each map corners
-    bounds = map.getExtent().toGeometry().getBounds().transform( map.getProjectionObject(),new OpenLayers.Projection("EPSG:4326") );
-    %{map_handler}.addFeature('pikts', bounds.top, bounds.left);
-    %{map_handler}.addFeature('pikts', bounds.top, bounds.right);
-    %{map_handler}.addFeature('pikts', bounds.bottom, bounds.left);
-    %{map_handler}.addFeature('pikts', bounds.bottom, bounds.right);
-  });
-
-});
 
 <% end %>
 ```
 
-There are many more predefined layer types available:
+There are more predefined layer types available:
 
   - OSM_MAPNIK
   - GOOGLE
@@ -128,10 +133,37 @@ Updating the map
 ----------------
 
 Now we want to add some simple markers in an Ajax action.
-First we add a link in the view:
+First we add a remote link in the view:
+
+```
+<%= link_to 'Add marker', add_marker_path, :remote => true %>
+```
+
+Add this new method in your controller, and do not forget the to add the corresponding route :
 
 ``` ruby
-  <%= link_to_remote "Add marker", :url => { :action => "add_marker" } %>
+  def add_marker
+    # the no_init option tells to instanciate object for ajax use
+    @map = MapLayers::JsExtension::MapBuilder.new("map", :no_init => true) do |builder, page|
+      feat = MapLayers::JsExtension::JsVar.new('feat')
+
+      # remove all existing feature in the layer
+      page << builder.map_handler.remove_features('pikts')
+
+      # add a new feature and save js var
+      page << feat.assign(builder.map_handler.add_feature('pikts', 53.349772, -6.277858))
+
+      # add description to display in the popup
+      page << builder.map_handler.add_feature_attributes(feat, {:name => 'The Cobblestone', :description => 'Guinness please', :link => 'http://www.cobblestonepub.ie'})
+
+      # center and zoom on this newly created feature
+      page << builder.map_handler.set_center_on_feature(feat, 15)
+    end
+  end
+```
+
+
+```
 <%= map_layers_container(@map, :class => 'small_size', :include_loading => true) do %>
   <!-- render this block inside the container -->
   <%= map_layers_localize_form_tag(localize_pictures_path) do |f| %>
@@ -155,12 +187,6 @@ First we add a link in the view:
       page << builder.map_handler.set_center_on_feature(feat, 15)
     end
   end
-```
-
-This requires including the prototype library:
-
-``` ruby
-  <%= javascript_include_tag 'prototype' %>
 ```
 
 Then we include a marker layer in the map. Put this after the add_layer statements in the controller:
