@@ -221,6 +221,7 @@ The localization method is up to you, here is a simple example using [Geocoder g
 License
 -------
 
-The MapLayers plugin for Rails is released under the MIT license.
+The MapLayers plugin for Rails is released under the [AGPL](LICENSE "GNU AFFERO GENERAL PUBLIC LICENSE") license.
 
-Copyright (c) 2013 La Fourmi Immo including original code Copyright (c) 2011 Luc Donnet, Dryade
+Copyright (c) 2013 La Fourmi Immo.
+Including original code Copyright (c) 2011 Luc Donnet, Dryade.
