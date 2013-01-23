@@ -97,8 +97,19 @@ And finally prepare a new map, including more layers and some more controls.
 @map = MapLayers::JsExtension::MapBuilder.new("map") do |builder, page|
   # OpenStreetMap layer
   page << builder.map.add_layer(MapLayers::OpenLayers::OSM_MAPNIK)
+
   # Google layer
   page << builder.map.add_layer(MapLayers::OpenLayers::GOOGLE)
+
+  # Google Satellite layer
+  page << builder.map.add_layer(MapLayers::OpenLayers::GOOGLE_SATELLITE)
+
+  # Google Hybrid layer
+  page << builder.map.add_layer(MapLayers::OpenLayers::GOOGLE_HYBRID)
+
+  # Google Physical layer
+  page << builder.map.add_layer(MapLayers::OpenLayers::GOOGLE_PHYSICAL)
+
 
   # Add a button to hide/show layers
   page << builder.map.add_control(MapLayers::OpenLayers::Control::LayerSwitcher.new)
@@ -135,17 +146,6 @@ And finally prepare a new map, including more layers and some more controls.
 end
 
 ```
-
-`MapLayers` is shipped with a js `map_handler` to perform easily tasks on map.
-
-This handy to :
-
-- add/remove feature from layer
-- handle popups on feature
-- show/hide/remove layers
-- center map on feature/coordinates
-- handle events on feature or on the map
-
 
 Add more options to your new map in the view
 
@@ -188,13 +188,36 @@ Add more options to your new map in the view
 <% end %>
 ```
 
-There are more predefined layer types available:
+`MapLayers` is shipped with a js `map_handler` to perform easily tasks on map.
 
-  - OSM_MAPNIK
-  - GOOGLE
-  - GOOGLE_SATELLITE
-  - GOOGLE_HYBRID
-  - GOOGLE_PHYSICAL
+This handy to :
+
+- add/remove feature from layer
+- handle popups on feature
+- show/hide/remove layers
+- center map on feature/coordinates
+- handle events on feature or on the map
+
+You may use it in a view :
+
+```
+<!-- Toggle layout visibility -->
+<%= link_to 'Toggle layer', '#', :onclick => "#{@map.map_handler.toggle_layer('pikts')}; return false;" %>
+
+<!-- Toggle Popup Infowindow -->
+<%= link_to 'Toggle popup', '#', :onclick => "#{@map.map_handler.toggle_feature_popup(@map.map_handler.get_layer_feature_by_nb('pikts', 0))}; return false;" %>
+
+<!-- Center on the first feature -->
+<%= link_to 'Center', '#', :onclick => "#{@map.map_handler.set_center_on_feature_by_nb("pikts", 0, 15)}; return false;" %>
+
+<!-- Center on the last feature without zooming -->
+<%= link_to 'Center without zoom', '#', :onclick => "#{@map.map_handler.set_center_on_feature_by_nb("pikts", -1)}; return false;" %>
+
+<!-- Set control mode for layouts events -->
+<%= link_to 'Set control to Drag', '#', :onclick => "#{@map.map_handler.toggle_control('map_controls', 'drag')}; return false;" %>
+<%= link_to 'Set control to Select', '#', :onclick => "#{@map.map_handler.toggle_control('map_controls', 'select')}; return false;" %>
+```
+
 
 Updating the map
 ----------------
