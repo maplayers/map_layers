@@ -2,8 +2,9 @@
 
 MapLayers makes it easy to integrate a dynamic map in a Rails application. It can display map tiles and markers loaded from many different data sources.
 The included map viewer is [OpenLayers](http://www.openlayers.org/).
+
 With MapLayers you can :
-- create map using all available options from openlayers
+- create map using all available options from OpenLayers
 - add/remove/show/hide layers
 - handle events triggered on maps
 
@@ -44,8 +45,14 @@ Add the container and scripts to your view :
 Multiple layers
 ---------------
 
-Adding feature may be done manually, from coordinates or using a renderer. This later option allow to localize objects in an easy way.
-Consider the following example, you have pictures taken from all around the world and you want to display them on a map.
+Adding feature may be done manually from coordinates or using a renderer. This
+later option allows to localize objects in an easy way. Consider the following
+example, you have pictures taken from all around the world and you want to
+display them on a map.
+
+Firstly, generate a renderer compatible with `map_layers`. For now, the only
+format supported is KML, but we'll add other format such as GPX soon.
+This renderer is an xml builder prepared to display data in a way handled by OpenLayers.
 
 Generate a kml renderer
 
@@ -65,9 +72,9 @@ By default, the standard renderer allow objects responding to :
   - altitude (replaced by 0 if not found)
 
 If you need something else, other markers or more attributes, customize the renderer.
+You may need to have all the icons in the asset/public directory to avoid Cross-Domain js error.
 
-
-Then you'll need to respond to kml format, do this by adding the following line in the controller.
+Then you'll need to respond to KML format, do this by adding the following line in the controller.
 
 ```
 # app/controllers/pictures_controller.rb
@@ -77,13 +84,13 @@ def index
   respond_to do |format|
     # ...
 
-    # add this line to respond to format kml
+    # add this line to respond to format kml using your renderer
     format.kml { render 'map_layers/index' }
   end
 end
 ```
 
-And finally display everything on a map, including more layers and some more controls in the controller action:
+And finally prepare a new map, including more layers and some more controls.
 
 ``` ruby
 # app/controller/your_controller.rb
@@ -129,6 +136,17 @@ end
 
 ```
 
+`MapLayers` is shipped with a js `map_handler` to perform easily tasks on map.
+
+This handy to :
+
+- add/remove feature from layer
+- handle popups on feature
+- show/hide/remove layers
+- center map on feature/coordinates
+- handle events on feature or on the map
+
+
 Add more options to your new map in the view
 
 ```
@@ -137,6 +155,7 @@ Add more options to your new map in the view
 
 <!-- map layers js scripts -->
 <%= map_layers_includes(@map, :onload => true) do %>
+  // Js code here, to be added after the map itself
   $(document).ready(function() {
 
     // you may add openlayers js code (%{map} and %{map_handler} are replaced the corresponding js objects)
