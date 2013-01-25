@@ -143,10 +143,10 @@ OpenLayersHandlers.SimpleMapHandler = function(map) {
 
     var ctrls = {
       select : new OpenLayers.Control.SelectFeature(layers),
-      point : new OpenLayers.Control.DrawFeature(layers, OpenLayers.Handler.Point),
-      path : new OpenLayers.Control.DrawFeature(layers, OpenLayers.Handler.Path),
-      polygon : new OpenLayers.Control.DrawFeature(layers, OpenLayers.Handler.Polygon),
-      drag : new OpenLayers.Control.DragFeature(layers, {
+      point : new OpenLayers.Control.DrawFeature(layers[0], OpenLayers.Handler.Point),
+      path : new OpenLayers.Control.DrawFeature(layers[0], OpenLayers.Handler.Path),
+      polygon : new OpenLayers.Control.DrawFeature(layers[0], OpenLayers.Handler.Polygon),
+      drag : new OpenLayers.Control.DragFeature(layers[0], {
         onComplete: function(feature) {
           if (this.dragCallbacks['onComplete'] !== undefined) { this.dragCallbacks['onComplete'](feature); }
         }.bind(this),

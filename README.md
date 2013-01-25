@@ -17,11 +17,41 @@ Install the latest version of the plugin:
 
 Or with bundler add to your Gemfile :
 
-    gem "map_layers"
+    gem 'map_layers'
 
 
 Initialization of the map
 -------------------------
+
+Include required stylesheets in your assets :
+
+```
+/*
+ * ... in your scss (application.css.scss) file
+ *= require OpenLayers.style
+ *= require map_layers
+*/
+```
+
+Define the size of your map container
+
+```
+.map_container.small_size{
+  width: 400px;
+  height: 400px;
+}
+
+```
+
+Include required javascript in your assets :
+
+```
+// ... in your js (application.js) file
+//= require OpenLayers
+//= require map_layers
+
+```
+
 
 Add the map viewer initialization to the index action in the controller :
 
@@ -130,6 +160,7 @@ And finally prepare a new map, including more layers and some more controls.
   # you may want to handle event on only one layer
   #page << builder.map_handler.initialize_controls('map_controls', 'pikts')
   # if you need to handle events on multiple layers, add all theses layers to the initializer
+  # drag events and draw (point, path, polygon) events only works on the first layer, in this case 'pikts'
   page << builder.map_handler.initialize_controls('map_controls', ['pikts', 'services'])
 
   # Switch control mode, 'select' display popup on feature
