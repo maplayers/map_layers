@@ -80,7 +80,7 @@ module MapLayers
 
 
 
-      def to_js(options = {})
+      def to_js(js_code = nil, options = {})
         method_name = "map_layers_init_#{variable}"
 
         variables = []
@@ -100,18 +100,27 @@ module MapLayers
 
           # init builder variable to null, to avoid multiple map loading
           js_gen << JsExpr.new("#{variable} = null")
-          js_gen << "function #{method_name}() {\nif (#{variable} == null) {\n#{@js.to_s}\n}\n}"
+          js_gen << "function #{method_name}() {"
+          js_gen << "if (#{variable} == null) {"
+          js_gen << "// base map code"
+          js_gen << "#{@js.to_s}"
+          unless js_code.nil? || !js_code.is_a?(String)
+            js_gen << "// additionnal code"
+            js_gen << js_code
+          end
+          js_gen << "}"
+          js_gen << "}"
         end
 
         js_gen.to_s.html_safe
       end
 
-      def to_html(options = {})
+      def to_html(js_code = nil, options = {})
         no_script_tag = options[:no_script_tag]
 
         html = ""
         #html << "<script defer=\"defer\" type=\"text/javascript\">\n" if !no_script_tag
-        html << no_script_tag ? to_js(options) : javascript_tag(to_js(options))
+        html << no_script_tag ? to_js(js_code, options) : javascript_tag(to_js(js_code, options))
         #html << "</script>" if !no_script_tag
 
         html.html_safe

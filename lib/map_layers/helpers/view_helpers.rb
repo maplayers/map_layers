@@ -1,31 +1,55 @@
 module MapLayers
+
+  EXTERNAL_SCRIPTS = {
+    :google => "http://maps.google.com/maps/api/js?v=3&sensor=false",
+    :multi_map => "http://clients.multimap.com/API/maps/1.1/%{multimap}",
+    :virtual_earth => "http://dev.virtualearth.net/mapcontrol/v3/mapcontrol.js",
+    :yahoo => "http://api.maps.yahoo.com/ajaxymap?v=3.0&appid=%{yahoo}"
+  }
+
   # Provides methods to generate HTML tags and JavaScript code
   module ViewHelper
     # Insert javascript include tags
     #
     # * options[:google] with GMAPS Key: Include Google Maps
-    # * options[:multimap] with MultiMap Key: Include MultiMap
-    # * options[:virtualearth]: Include VirtualEarth
+    # * options[:multi_map] with MultiMap Key: Include MultiMap
+    # * options[:virtual_earth]: Include VirtualEarth
     # * options[:yahoo] with Yahoo appid: Include Yahoo! Maps
     # * options[:proxy] with name of controller with proxy action. Defaults to current controller.
     def map_layers_includes(map_builder, options = {}, &block)
-#      options.assert_valid_keys(:google, :multi_map, :osm, :virtual_earth, :yahoo,
-#                                :proxy, :img_path,
-#                                :onload)
       ml_script = options[:map_layer_script] || nil
 
       layers_added = map_builder.map.layers
 
-      scripts = []
-      scripts << "http://maps.google.com/maps/api/js?v=3&sensor=false" if options.has_key?(:google) || layers_added.include?(:google)
-      scripts << "http://clients.multimap.com/API/maps/1.1/#{options[:multimap]}" if options.has_key?(:multi_map) || layers_added.include?(:multi_map)
-      #scripts << "http://dev.virtualearth.net/mapcontrol/v3/mapcontrol.js" if options.has_key?(:virtual_earth) || layers_added.include?(:virtual_earth)
-      scripts << "http://api.maps.yahoo.com/ajaxymap?v=3.0&appid=#{options[:yahoo]}" if options.has_key?(:yahoo) || layers_added.include?(:yahoo)
+      # keep a trace of loaded layers to avoid double loading
+      @map_layers_loaded_layers ||= []
 
+      map_options = options.keep_if { |key| EXTERNAL_SCRIPTS.has_key?(key) }
+
+      # page return array
+      html = []
+
+      # external scripts array
+      scripts = []
+
+      # load external scripts
+      EXTERNAL_SCRIPTS.each do |key, value|
+        if options.has_key?(key) || layers_added.include?(key)
+          unless @map_layers_loaded_layers.include?(key)
+            # OPTIMIZE: provide a better error message than KeyError exception
+            scripts << (value % map_options).html_safe #rescue nil
+            @map_layers_loaded_layers << key
+          end
+        end
+      end
+
+      # load optional map_layers script
       scripts << ml_script unless ml_script.nil?
 
-      html = []
-      scripts.each { |script| html << javascript_include_tag(script) }
+      # add external scripts to page
+      scripts.compact.each { |script| html << javascript_include_tag(script) }
+
+      # add default map_layers script to page
       html << javascript_tag(map_layers_script(map_builder, options, &block)) if ml_script.nil?
 
       html.join("\n").html_safe
@@ -41,12 +65,13 @@ module MapLayers
         proxy = options[:proxy] || controller.controller_name
       end
 
+      js_code = (capture(&block) % { :map_handler => map_builder.map_handler.variable, :map => map_builder.map.variable  } rescue "alert('error');") if block_given?
+
       scripts = []
       scripts << "OpenLayers.ImgPath='#{img_path}/';"
       scripts << "OpenLayers.ProxyHost='/#{proxy}/proxy?url=';" unless proxy.nil?
-      scripts << map_builder.to_js
+      scripts << map_builder.to_js(js_code)
       scripts << %Q[$(document).ready(function() { map_layers_init_#{map_builder.map.variable}(); });] if onload
-      scripts << (capture(&block) % { :map_handler => map_builder.map_handler.variable, :map => map_builder.map.variable  } rescue "alert('error');") if block_given?
 
       scripts.join("\n").html_safe
     end
