@@ -39,6 +39,8 @@ module MapLayers
             # OPTIMIZE: provide a better error message than KeyError exception
             scripts << (value % map_options).html_safe #rescue nil
             @map_layers_loaded_layers << key
+          else
+            html << "<!-- #{key.to_s} scripts for map_layers already loaded -->"
           end
         end
       end
