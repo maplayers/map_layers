@@ -24,7 +24,7 @@ module MapLayers
       # keep a trace of loaded layers to avoid double loading
       @map_layers_loaded_layers ||= []
 
-      map_options = options.keep_if { |key| EXTERNAL_SCRIPTS.has_key?(key) }
+      map_options = options.dup.keep_if { |key| EXTERNAL_SCRIPTS.has_key?(key) }
 
       # page return array
       html = []
