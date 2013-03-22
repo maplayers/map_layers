@@ -4,26 +4,73 @@ OpenLayersHandlers.SimpleMapHandler = function(map) {
   this.controls = {};
   this.dragCallbacks = {};
 
+  this.ajaxPopupContent = function(feature) {
+    return (feature.attributes.popup_content_url !== undefined);
+  }
+  this.addFeaturePopupContent = function(feature, popup) {
+    name = feature.attributes.name;
+    url = feature.attributes.popup_content_url;
+
+    if (url !== undefined)
+    {
+      var request = OpenLayers.Request.GET({
+          url: url,
+          scope: feature,
+          callback: function(request) {
+            this.attributes.popup_content = request.responseText;
+            //alert(document.querySelector('.map_layer_popup'));
+
+            // update popup content
+            var popup_el = document.getElementById(this.attributes.id);
+            popup_el.querySelector('.map_layer_popup').innerHTML = this.attributes.popup_content;
+
+            this.popup.updateSize();
+          }
+      });
+    }
+    else
+    {
+      if (feature.attributes.link !== undefined)
+      {
+        name = '<a href="' + feature.attributes.link + '">' + name + '</a>';
+      }
+      feature.attributes.popup_content = '<h2>' + name + '</h2>' + feature.attributes.description;
+    }
+  }
+
   this.addFeaturePopup = function(feature) {
     this.selectedFeature = feature;
 
-    name = feature.attributes.name;
-
-    if (feature.attributes.link !== undefined)
+    if (!this.ajaxPopupContent(feature))
     {
-      name = '<a href="' + feature.attributes.link + '">' + name + '</a>'
+      // adding static content
+      this.addFeaturePopupContent(feature);
+      pop_content = feature.attributes.popup_content;
+    }
+    else
+    {
+      pop_content = '';
     }
 
-    pop_content = '<div class="map_layer_popup"><h2>' + name + '</h2>' + feature.attributes.description + '</div>';
 
-    var popup = new OpenLayers.Popup.FramedCloud("chicken",
+    pop_container = '<div class="map_layer_popup">' + pop_content + '</div>';
+
+    var popup = new OpenLayers.Popup.FramedCloud(feature.attributes.id,
         feature.geometry.getBounds().getCenterLonLat(),
         new OpenLayers.Size(100,100),
-        pop_content,
+        pop_container,
         null, false, null
     );
+    //popup.autoSize = true; // doesn't work on stable release
+    popup.border = 0; // doesn't work on stable release
     feature.popup = popup;
     this.map.addPopup(popup);
+
+    // adding ajax content if needed
+    if (this.ajaxPopupContent(feature))
+    {
+      this.addFeaturePopupContent(feature);
+    }
   }
   this.removeFeaturePopup = function(feature) {
     if(feature.popup) {

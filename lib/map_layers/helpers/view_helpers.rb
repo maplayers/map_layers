@@ -57,6 +57,9 @@ module MapLayers
       html.join("\n").html_safe
     end
 
+    ##
+    # Load map_layers script
+    #
     def map_layers_script(map_builder, options = {}, &block)
       onload = options[:onload] || false
 
@@ -78,6 +81,10 @@ module MapLayers
       scripts.join("\n").html_safe
     end
 
+
+    ##
+    # Output map_layers div container, where the map will be printed
+    #
     def map_layers_container(map_builder, options = {}, &block)
       include_loading = options[:include_loading] || false
 
@@ -91,6 +98,19 @@ module MapLayers
       end
     end
 
+    def map_layers_form_fields_container(map_builder = nil, options = {}, &block)
+      #  <div class="map_info" data-map="<%= local_assigns.has_key?(:map) ? map : 'map' %>">
+      html_options = {:class => 'map_info'}
+      html_options.merge!({:data => { :map => map_builder.map.variable }}) unless map_builder.nil?
+
+      content_tag(:div, html_options) do
+        capture(&block) if block_given?
+      end
+    end
+
+    ##
+    # OPTIMIZE: localize form
+    #
     def map_layers_localize_form_tag(url_for_options = {}, options = {}, &block)
       klass = options[:class] || ''
       map_layers_options = options.merge(:remote => true, :class => [klass, 'map_layers', 'localize'].reject { |c| c.empty? }.join(' '))

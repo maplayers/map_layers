@@ -187,35 +187,30 @@ Add more options to your new map in the view
 <!-- map layers js scripts -->
 <%= map_layers_includes(@map, :onload => true) do %>
   // Js code here, to be added after the map itself
-  $(document).ready(function() {
+  // you may add openlayers js code (%{map} and %{map_handler} are replaced the corresponding js objects)
 
-    // you may add openlayers js code (%{map} and %{map_handler} are replaced the corresponding js objects)
-
-    // setDragCallback handle feature drag events
-    %{map_handler}.setDragCallback('onComplete', function(feature) {
-      // and allows you to fill a form on feature drag
-      fillFormWithFeature(feature);
-    });
-
-    // handle map move and add features in the center and each corners on map move
-    %{map}.events.register("moveend", map, function() {
-      var center = %{map}.getCenter().clone().transform( %{map}.getProjectionObject(),new OpenLayers.Projection("EPSG:4326") );
-      alert("moveend : " + center);
-      feature = %{map_handler}.addFeature('pikts', center.lat, center.lon);
-
-      // use any custom js method at your convenience
-      fillFormWithLonlat(feature);
-
-      // add features to each map corners
-      bounds = map.getExtent().toGeometry().getBounds().transform( map.getProjectionObject(),new OpenLayers.Projection("EPSG:4326") );
-      %{map_handler}.addFeature('pikts', bounds.top, bounds.left);
-      %{map_handler}.addFeature('pikts', bounds.top, bounds.right);
-      %{map_handler}.addFeature('pikts', bounds.bottom, bounds.left);
-      %{map_handler}.addFeature('pikts', bounds.bottom, bounds.right);
-    });
-
+  // setDragCallback handle feature drag events
+  %{map_handler}.setDragCallback('onComplete', function(feature) {
+    // and allows you to fill a form on feature drag
+    fillFormWithFeature('<%= @map.variable %>', feature);
   });
 
+  // handle map move and add features in the center and each corners on map move
+  %{map}.events.register("moveend", map, function() {
+    var center = %{map}.getCenter().clone().transform( %{map}.getProjectionObject(),new OpenLayers.Projection("EPSG:4326") );
+    alert("moveend : " + center);
+    feature = %{map_handler}.addFeature('pikts', center.lat, center.lon);
+
+    // use any custom js method at your convenience
+    fillFormWithLonlat(feature);
+
+    // add features to each map corners
+    bounds = map.getExtent().toGeometry().getBounds().transform( map.getProjectionObject(),new OpenLayers.Projection("EPSG:4326") );
+    %{map_handler}.addFeature('pikts', bounds.top, bounds.left);
+    %{map_handler}.addFeature('pikts', bounds.top, bounds.right);
+    %{map_handler}.addFeature('pikts', bounds.bottom, bounds.left);
+    %{map_handler}.addFeature('pikts', bounds.bottom, bounds.right);
+  });
 <% end %>
 ```
 
@@ -331,6 +326,71 @@ def localize
   end
 end
 ```
+
+Now another example handling multiple map on a single page.
+
+```
+# app/controllers/<obj>_controller.rb
+def localize
+  @search = Geocoder.search(params[:search])
+
+  layer = params[:layer]
+  map_name = params[:map]
+
+  @map = MapLayers::JsExtension::MapBuilder.new(map_name, :no_init => true) do |builder, page|
+    feat = MapLayers::JsExtension::JsVar.new('feat')
+
+    unless @search.nil? || @search[0].nil?
+      coordinates = @search[0].coordinates
+      page << builder.map_handler.remove_features(layer)
+      page << feat.assign(builder.map_handler.add_feature(layer, coordinates[0], coordinates[1]))
+      page << builder.map_handler.add_feature_attributes(feat, {:name => @search[0].address.gsub(/\'/, '\''), :description => 'Move me to update form fields', :link => 'http://www.google.ie'})
+      page << builder.map_handler.set_center_on_feature(feat, 15)
+    end
+  end
+end
+```
+
+```
+// app/views/<obj>/localize.js.erb
+<%= @map.to_js %>
+mapLayersLoading().hide();
+mapLayersFillFormWithFeature('<%= @map.variable %>', feat);
+```
+
+
+Updating form fields
+--------------------
+
+You may want to review localization in a form, MapLayers include an easy way to fill latitude/longitude form fields.
+To do this, include the following code in your view.
+
+```
+<%= map_layers_form_fields_container(@map) do %>
+  <!-- add class 'localize_me' to the fields you want to use for geolocalization -->
+  <%= f.text_field :street, :class => 'localize_me' %>
+  <%= f.text_field :city, :class => 'localize_me' %>
+
+  ...
+  <!-- add class 'latitude_field'/'longitude_field' to the appropriate fields where you want to set the result -->
+  <%= f.text_field :latitude, :readonly => true, :class => 'latitude_field' %>
+  <%= f.text_field :longitude, :readonly => true, :class => 'longitude_field' %>
+
+  ...
+  <!-- adapt the next line to match the previous 'localize' method and to your map layer name -->
+  <%= link_to 'localize', localize_<objects>_path(:type => 'address'), :data => {:layer => 'markers'}, :class => 'map_layers localize_form_fields' %>
+<% end %>
+
+<%= map_layers_container(@map, :class => 'big_map_size', :include_loading => true) %>
+
+<%= map_layers_includes(@map, :onload => false) do -%>
+%{map_handler}.setDragCallback('onComplete', function(feature) {
+  mapLayersFillFormWithFeature('%{map}', feature);
+});
+<% end %>
+```
+
+
 
 License
 -------

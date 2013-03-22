@@ -42,6 +42,8 @@ xml.kml(:xmlns=>"http://earth.google.com/kml/2.2") do
       end
     end
 
+    #xml.Style ... your styles here
+
     xml.Folder do
       xml.name @folder_name
 
@@ -60,7 +62,11 @@ xml.kml(:xmlns=>"http://earth.google.com/kml/2.2") do
               xml.cdata! "#{feature.description}"
             end
 
+            # popup url
+            xml.popup_content_url polymorphic_path([:popup_content, feature]) rescue nil
+
             xml.styleUrl "#sunny_icon_pair"
+            #xml.styleUrl "##{feature.map_layers_marker}" if feature.respond_to?('map_layers_marker')
 
             # place link
             #xml.link browse_path(feature.url)
@@ -68,7 +74,7 @@ xml.kml(:xmlns=>"http://earth.google.com/kml/2.2") do
             # place geoloc
             altitude = feature.respond_to?('altitude') ? feature.altitude : 0
             xml.Point do
-              xml.coordinates "#{feature.latitude.to_f},#{feature.longitude.to_f},#{altitude}"
+              xml.coordinates "#{feature.longitude.to_f},#{feature.latitude.to_f},#{altitude}"
             end
           end
         end
