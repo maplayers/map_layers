@@ -33,7 +33,7 @@ $(function() {
     var map_info = $(this).parents('.map_info');
 
     // getting map container id
-    map = map_info.attr('data-map');
+    var map = map_info.attr('data-map');
 
     // show map container
     $('#' + map).parent().show();
@@ -47,10 +47,10 @@ $(function() {
       fields.push($(item).val());
     });
 
-    layerName = $(this).attr('data-layer');
+    var = layerName = $(this).attr('data-layer');
     //map_handler.toggleLayer(layerName);
 
-    href = this.href + '&layer=' + layerName + '&map=' + map + '&search=' + fields.join(' ');
+    var href = this.href + '&layer=' + layerName + '&map=' + map + '&search=' + fields.join(' ');
 
     $.ajax({
       url: href
