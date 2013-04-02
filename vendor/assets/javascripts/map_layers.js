@@ -47,7 +47,7 @@ $(function() {
       fields.push($(item).val());
     });
 
-    var = layerName = $(this).attr('data-layer');
+    var layerName = $(this).attr('data-layer');
     //map_handler.toggleLayer(layerName);
 
     var href = this.href + '&layer=' + layerName + '&map=' + map + '&search=' + fields.join(' ');
