@@ -5,11 +5,11 @@ OpenLayersHandlers.SimpleMapHandler = function(map) {
   this.dragCallbacks = {};
 
   this.ajaxPopupContent = function(feature) {
-    return (feature.attributes.popup_content_url !== undefined);
+    return (feature.attributes.popupContentUrl !== undefined);
   }
   this.addFeaturePopupContent = function(feature, popup) {
     name = feature.attributes.name;
-    url = feature.attributes.popup_content_url;
+    url = feature.attributes.popupContentUrl;
 
     if (url !== undefined)
     {
