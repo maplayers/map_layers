@@ -188,12 +188,22 @@ OpenLayersHandlers.SimpleMapHandler = function(map) {
       }
     }
 
-    var ctrls = {
-      select : new OpenLayers.Control.SelectFeature(layers),
-      point : new OpenLayers.Control.DrawFeature(layers[0], OpenLayers.Handler.Point),
-      path : new OpenLayers.Control.DrawFeature(layers[0], OpenLayers.Handler.Path),
-      polygon : new OpenLayers.Control.DrawFeature(layers[0], OpenLayers.Handler.Polygon),
-      drag : new OpenLayers.Control.DragFeature(layers[0], {
+    var select_obj = undefined;
+    var point_obj = undefined;
+    var path_obj = undefined;
+    var polygon_obj = undefined;
+    var drag_obj = undefined;
+
+    if (OpenLayers.Control.SelectFeature) {
+      select_obj = new OpenLayers.Control.SelectFeature(layers);
+    }
+    if (OpenLayers.Control.DrawFeature) {
+      point_obj = new OpenLayers.Control.DrawFeature(layers[0], OpenLayers.Handler.Point);
+      path_obj = new OpenLayers.Control.DrawFeature(layers[0], OpenLayers.Handler.Path);
+      polygon_obj = new OpenLayers.Control.DrawFeature(layers[0], OpenLayers.Handler.Polygon);
+    }
+    if (OpenLayers.Control.DragFeature) {
+      drag_obj = new OpenLayers.Control.DragFeature(layers[0], {
         onComplete: function(feature) {
           if (this.dragCallbacks['onComplete'] !== undefined) { this.dragCallbacks['onComplete'](feature); }
         }.bind(this),
@@ -203,8 +213,16 @@ OpenLayersHandlers.SimpleMapHandler = function(map) {
         onDrag: function() {
           if (this.dragCallbacks['onDrag'] !== undefined) { this.dragCallbacks['onDrag'](feature); }
         }
-      })
+      });
     }
+
+    var ctrls = {
+      select : select_obj,
+      point : point_obj,
+      path : path_obj,
+      polygon : polygon_obj,
+      drag : drag_obj
+    };
 
     for (var idx in layers) {
       var layer = layers[idx];
@@ -225,8 +243,12 @@ OpenLayersHandlers.SimpleMapHandler = function(map) {
   this.toggleControl = function(controlsName, ctrl) {
     for(key in this.controls[controlsName])
     {
-      if(ctrl == key) { this.controls[controlsName][key].activate(); }
-      else { this.controls[controlsName][key].deactivate(); }
+      var current_ctrl = this.controls[controlsName][key];
+      if (current_ctrl !== undefined)
+      {
+        if (ctrl == key) { current_ctrl.activate(); }
+        else { current_ctrl.deactivate(); }
+      }
     }
   }
 
