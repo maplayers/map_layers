@@ -16,8 +16,7 @@ function mapLayersLoadingJquery() {
   return $('.map_container .loading');
 }
 
-// OPTIMIZE: remove jquery dependency
-$(function() {
+function mapLayersInitializer(){
 
   // add the loader indicator
   $('.map_layers.localize').submit(function(){
@@ -63,7 +62,7 @@ $(function() {
     return false;
   });
 
-});
+}
 
 
 // Fill a form using OpenLayers
@@ -77,3 +76,9 @@ function mapLayersFillFormWithLonlat(map_name, lat, lon) {
   $(form).find('.latitude_field').val(lat);
   $(form).find('.longitude_field').val(lon);
 }
+
+
+// OPTIMIZE: remove jquery dependency
+$(function() {
+  mapLayersInitializer();
+});
