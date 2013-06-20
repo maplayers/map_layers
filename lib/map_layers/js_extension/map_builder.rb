@@ -119,9 +119,7 @@ module MapLayers
         no_script_tag = options[:no_script_tag]
 
         html = ""
-        #html << "<script defer=\"defer\" type=\"text/javascript\">\n" if !no_script_tag
         html << no_script_tag ? to_js(js_code, options) : javascript_tag(to_js(js_code, options))
-        #html << "</script>" if !no_script_tag
 
         html.html_safe
       end

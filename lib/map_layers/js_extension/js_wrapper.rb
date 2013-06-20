@@ -176,10 +176,8 @@ module MapLayers
         @args = args
       end
 
-      def create() #base = 'OpenLayers')
+      def create
         jsclass = self.class.to_s.split(/::/)[1..-1]
-        #jsclass.insert(0, 'OpenLayers') unless jsclass[0] == 'OpenLayers'
-        #jsclass.insert(0, base) unless jsclass[0] == base
         args = @args.collect{ |arg| JsWrapper.javascriptify_variable(arg) }
         JsExpr.new("new #{jsclass.join('.')}(#{args.join(',')})")
       end
