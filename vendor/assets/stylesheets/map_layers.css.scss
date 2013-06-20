@@ -1,0 +1,23 @@
+// map container 
+.map_container {
+  border: 0;
+  padding: 0;
+  position: relative;
+}
+
+.map_container > div:first-child {
+  width: 100%;
+  height: 100%;
+}
+
+.map_container .loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: no-repeat center url('/assets/map_layers/loading.gif');
+  z-index: 1000;
+  opacity: 0.5;
+  display: none;
+}
