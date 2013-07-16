@@ -1,4 +1,4 @@
-# MapLayers
+# MapLayers [![Build Status](https://travis-ci.org/dryade/map_layers.png)](http://travis-ci.org/dryade/map_layers?branch=master) [![Dependency Status](https://gemnasium.com/dryade/map_layers.png)](https://gemnasium.com/dryade/map_layers) [![Code Climate](https://codeclimate.com/github/dryade/map_layers.png)](https://codeclimate.com/github/dryade/map_layers)
 
 MapLayers makes it easy to integrate a dynamic map in a Rails application. It can display map tiles and markers loaded from many different data sources.
 The included map viewer is [OpenLayers](http://www.openlayers.org/).
