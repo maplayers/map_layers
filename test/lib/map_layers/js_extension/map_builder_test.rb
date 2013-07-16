@@ -12,6 +12,7 @@ var map,map_handler;
 map = null;
 function map_layers_init_map() {
 if (map == null) {
+// base map code
 map = new OpenLayers.Map('map',{theme : false});
 map_handler = new OpenLayersHandlers.SimpleMapHandler(map);
 map.addLayer(new OpenLayers.Layer.Google('Google Street',{sphericalMercator : true}));
@@ -55,6 +56,7 @@ var bigmap,pikts,bigmap_handler;
 bigmap = null;
 function map_layers_init_bigmap() {
 if (bigmap == null) {
+// base map code
 bigmap = new OpenLayers.Map('bigmap',{theme : false});
 bigmap_handler = new OpenLayersHandlers.SimpleMapHandler(bigmap);
 bigmap.addLayer(new OpenLayers.Layer.OSM('OpenStreetMap'));
