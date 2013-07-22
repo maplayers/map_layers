@@ -18,7 +18,6 @@ OpenLayersHandlers.SimpleMapHandler = function(map) {
           scope: feature,
           callback: function(request) {
             this.attributes.popup_content = request.responseText;
-            //alert(document.querySelector('.map_layer_popup'));
 
             // update popup content
             var popup_el = document.getElementById(this.attributes.id);
@@ -141,6 +140,10 @@ OpenLayersHandlers.SimpleMapHandler = function(map) {
   this.setCenterOnFeature = function(feature, zoom) {
     if (feature != null)
     {
+      if (feature.geometry.bounds == null)
+      {
+        feature.geometry.calculateBounds();
+      }
       var lonlat = feature.geometry.bounds.getCenterLonLat().clone();
       this.setCenterOnLonlat(lonlat, zoom);
     }
@@ -256,7 +259,6 @@ OpenLayersHandlers.SimpleMapHandler = function(map) {
     var layer = this.map.getLayersByName(layerName)[0];
 
     var point = new OpenLayers.Geometry.Point(lon, lat).transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
-
     if (icon == null)
     {
       icon = { externalGraphic: "/assets/OpenLayers/marker.png",
