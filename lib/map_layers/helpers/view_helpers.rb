@@ -1,7 +1,7 @@
 module MapLayers
 
   EXTERNAL_SCRIPTS = {
-    :google => "http://maps.google.com/maps/api/js?v=3&sensor=false",
+    :google => "https://maps.googleapis.com/maps/api/js?sensor=false",
     :multi_map => "http://clients.multimap.com/API/maps/1.1/%{multimap}",
     :virtual_earth => "http://dev.virtualearth.net/mapcontrol/v3/mapcontrol.js",
     :yahoo => "http://api.maps.yahoo.com/ajaxymap?v=3.0&appid=%{yahoo}"
