@@ -91,7 +91,10 @@ module MapLayers
       klass = %w(map_container)
       klass << options[:class] unless options[:class].nil?
       content_tag(:div, :class => klass.join(" ")) do
-        content = content_tag(:div, '', :id => map_builder.map.variable)
+        content = content_tag(:div, '',
+                              :id => map_builder.map.variable,
+                              :class => map_builder.map.layers.map { |l| "maplayers-#{l}" }.join(' ')
+                             )
         content << content_tag(:div, '', :class => 'loading') if include_loading
         content << capture(&block) if block_given?
         content

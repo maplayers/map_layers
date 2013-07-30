@@ -390,6 +390,48 @@ To do this, include the following code in your view.
 <% end %>
 ```
 
+Map dynamic loading
+-------------------
+
+For those of you who need to load google maps in ajax, it is possible but you
+have to add a dynamic initializer.
+
+`map_layers_container` helper is adding a css class for each map layer you load
+in the container. It is later possible to use it for google maps dynamic
+loading.
+
+You may find here an example to add before map initialization.
+
+```
+function mapLayersInitializerModal(){
+  // if your map container include a google maps layer
+  // we want to dynamicaly add a <script> to the dom
+  $map = $('#modal').find('div.maplayers-google');
+  if($map.length && (typeof google == 'undefined')){
+    var s = document.createElement('script');
+    s.type = 'text/javascript';
+    s.src = 'https://maps.googleapis.com/maps/api/js?sensor=false&callback=gmapsinitialize';
+    document.body.appendChild(s);
+  }
+}
+
+function gmapsinitialize() {
+  var mapOptions = {
+    zoom: 8,
+    center: new google.maps.LatLng(48.397, 7.744),
+    mapTypeId: google.maps.MapTypeId.ROADMAP
+  }
+  $map = $('#modal').find('div.maplayers-google');
+  if($map.length > 0){
+    var map = new google.maps.Map($map[0], mapOptions);
+  }
+}
+
+$(function() {
+  // call mapLayersInitializerModal() when appropriated depending of your
+  // application
+});
+```
 
 
 License
