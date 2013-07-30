@@ -440,4 +440,4 @@ License
 The MapLayers plugin for Rails is released under the [AGPL](http://www.gnu.org/licenses/agpl-3.0.en.html "GNU AFFERO GENERAL PUBLIC LICENSE") license.
 
 Copyright (c) 2013 La Fourmi Immo.
-Including original code Copyright (c) 2011 Luc Donnet, Dryade.
+Including original code Copyright (c) 2011 Luc Donnet (Dryade), Pirmin Kalberer (Sourcepole) and others.
