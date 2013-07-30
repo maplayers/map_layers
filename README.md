@@ -433,6 +433,10 @@ $(function() {
 });
 ```
 
+You may find here [Google developers documentation](https://developers.google.com/maps/documentation/javascript/tutorial#asynch "Asynchronously Loading the API")
+on this topic.
+
+
 
 License
 -------
