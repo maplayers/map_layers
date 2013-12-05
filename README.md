@@ -28,7 +28,9 @@ Include required stylesheets in your assets :
 ```
 /*
  * ... in your scss (application.css.scss) file
- *= require OpenLayers.style
+ * (optional, openlayers default theme)
+ *= require openlayers/theme/default/style
+ * then map_layers
  *= require map_layers
 */
 ```
@@ -47,7 +49,8 @@ Include required javascript in your assets :
 
 ```
 // ... in your js (application.js) file
-//= require OpenLayers
+//= require openlayers-map_layers
+//= require openlayers-rails
 //= require map_layers
 
 ```
