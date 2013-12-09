@@ -255,6 +255,17 @@ OpenLayersHandlers.SimpleMapHandler = function(map) {
     }
   }
 
+  this.toggleControls = function() {
+    for (var key in this.map.controls)
+    {
+      var current_ctrl = this.map.controls[key];
+      if (current_ctrl.active == true)
+        current_ctrl.deactivate && current_ctrl.deactivate();
+      else
+        current_ctrl.activate && current_ctrl.activate();
+    }
+  }
+
   this.addFeature = function(layerName, lat, lon, icon) {
     var layer = this.map.getLayersByName(layerName)[0];
 
@@ -269,17 +280,6 @@ OpenLayersHandlers.SimpleMapHandler = function(map) {
     }
 
     var feature = new OpenLayers.Feature.Vector(point, null, icon);
-                      //new OpenLayers.Geometry.Point(lonlat.lat, lonlat.lon), null, icon);
-/*
-    var feature = new OpenLayers.Feature.Vector(
-                      new OpenLayers.Geometry.Point(lonlat.lon, lonlat.lat), null, {
-                          //externalGraphic: "http://maps.google.com/mapfiles/kml/shapes/sunny.png",
-                          externalGraphic: "/assets/OpenLayers/marker.png",
-                          graphicWidth: 32,
-                          graphicHeight: 32,
-                          fillOpacity: 1
-                      });
-*/
     layer.addFeatures([feature]);
     return feature;
   }
@@ -318,7 +318,7 @@ OpenLayersHandlers.SimpleMapHandler = function(map) {
     });
     */
 
-    // desactivate all controls for this layer
+    // destroy all controls for this layer
     for(key in this.controls[layerName])
     {
       this.controls[layerName][key].deactivate();
@@ -352,7 +352,7 @@ OpenLayersHandlers.SimpleMapHandler = function(map) {
 
 // js :
 // var point = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Point(-111.04, 45.68), {icon:"icon.png"});
-// layer.addFeatures([point]); 
+// layer.addFeatures([point]);
 //
 // var point = new OpenLayers.Geometry.Point(ll.lon, ll.lat);
 // var feature = new OpenLayers.Feature.Vector(point,{icon:"icon.png"});
@@ -382,5 +382,4 @@ OpenLayersHandlers.SimpleMapHandler = function(map) {
 //   alert("moveend : " + center);
 //   %{map_handler}.addFeature('pikts', center.lat, center.lon);
 // });
-// 
-
+//
