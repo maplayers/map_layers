@@ -63,7 +63,7 @@ module MapLayers
     def map_layers_script(map_builder, options = {}, &block)
       onload = options[:onload] || false
 
-      img_path = options[:img_path] || '/assets/OpenLayers/'
+      img_path = options[:img_path] || '/assets/openlayers/img'
       unless controller.nil?
         rails_relative_url_root = controller.config.relative_url_root
         img_path=(Pathname(rails_relative_url_root||"") +img_path).cleanpath.to_s
