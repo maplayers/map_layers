@@ -49,10 +49,13 @@ function mapLayersInitializer(){
     var layerName = $(this).attr('data-layer');
     //map_handler.toggleLayer(layerName);
 
-    var href = this.href + '&layer=' + layerName + '&map=' + map + '&search=' + fields.join(' ');
-
     $.ajax({
-      url: href
+      url: this.href,
+      data: {
+        layer: layerName,
+        map: map,
+        search: fields.join(' ')
+      }
     });
 
     mapLayersLoading().show();
