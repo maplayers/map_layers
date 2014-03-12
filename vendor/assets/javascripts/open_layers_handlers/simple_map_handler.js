@@ -48,6 +48,7 @@ OpenLayersHandlers.SimpleMapHandler = function(map) {
     }
     else
     {
+      // initialize empty popup for ajax
       pop_content = '';
     }
 
@@ -243,7 +244,7 @@ OpenLayersHandlers.SimpleMapHandler = function(map) {
     }
   }
 
-  this.toggleControl = function(controlsName, ctrl) {
+  this.switchControl = function(controlsName, ctrl) {
     for(key in this.controls[controlsName])
     {
       var current_ctrl = this.controls[controlsName][key];
@@ -255,15 +256,34 @@ OpenLayersHandlers.SimpleMapHandler = function(map) {
     }
   }
 
+  this.toggleControlObject = function(ctrl) {
+    var active = ctrl.active;
+    if (ctrl.active == true)
+      ctrl.deactivate && ctrl.deactivate();
+    else
+      ctrl.activate && ctrl.activate();
+    return active;
+  }
+
+  this.toggleControlByClass = function(klass) {
+    var active = false;
+    var handler = this;
+    this.map.getControlsByClass(klass).forEach( function(entry) {
+      active = handler.toggleControlObject(entry);
+    });
+    return active;
+  }
+
   this.toggleControls = function() {
+    var active = false;
+
     for (var key in this.map.controls)
     {
       var current_ctrl = this.map.controls[key];
-      if (current_ctrl.active == true)
-        current_ctrl.deactivate && current_ctrl.deactivate();
-      else
-        current_ctrl.activate && current_ctrl.activate();
+      active = this.toggleControlObject(current_ctrl);
     }
+
+    return active;
   }
 
   this.addFeature = function(layerName, lat, lon, icon) {
