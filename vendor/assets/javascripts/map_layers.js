@@ -1,6 +1,7 @@
 /*
  *= require_self
  *= require_tree ./open_layers_handlers
+ *= require openlayers-rails
 */
 
 // declare namespace

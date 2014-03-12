@@ -1,5 +1,3 @@
-require 'pp'
-
 module MapLayers
   module JsExtension
 
@@ -8,6 +6,7 @@ module MapLayers
       attr_reader :map, :map_handler
       attr_reader :options
       attr_reader :no_init
+      attr_reader :js
 
       def initialize(map_name, options = {}, &block)
         self.variable = map_name
