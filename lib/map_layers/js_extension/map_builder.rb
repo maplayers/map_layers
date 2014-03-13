@@ -3,7 +3,7 @@ module MapLayers
 
     class MapBuilder
       include JsWrapper
-      attr_reader :map, :map_handler
+      attr_reader :js_map, :js_handler
       attr_reader :options
       attr_reader :no_init
       attr_reader :js
@@ -14,19 +14,19 @@ module MapLayers
 
         @js = JsGenerator.new
 
-        @map = Map.new(map_name, options)
-        @map_handler = MapHandler.new(@map, options)
+        @js_map = Map.new(map_name, options)
+        @js_handler = MapHandler.new(@js_map, options)
 
         unless no_init
-          @js << @map.js
-          @js << @map_handler.js
+          @js << @js_map.js
+          @js << @js_handler.js
         end
 
         yield(self, @js) if block_given?
       end
 
       def create_vector_layer(name, url, options = {})
-        projection = options[:projection] || JsExpr.new("#{@map.variable}.displayProjection")
+        projection = options[:projection] || JsExpr.new("#{@js_map.variable}.displayProjection")
         format = options[:format] || nil
         protocol = url.nil? ? {} : {
             :strategies => [OpenLayers::Strategy::Fixed.new], #, OpenLayers::Strategy::Cluster.new],
@@ -43,7 +43,7 @@ module MapLayers
 
       def replace_vector_layer(name, url, options = {})
         js = JsGenerator.new
-        js << JsVar.new(@map_handler.variable).destroy_layer(name)
+        js << JsVar.new(@js_handler.variable).destroy_layer(name)
         js << add_vector_layer(name, url, options)
 
         js.to_s.html_safe
@@ -69,10 +69,10 @@ module MapLayers
         layer = create_vector_layer(name, url, options.merge(
             :format => frmt))
 
-        @map.variables << layer_name
+        @js_map.variables << layer_name
 
         js << JsVar.new(layer_name).assign(layer)
-        js << JsVar.new(@map.variable).add_layer(JsVar.new(layer_name))
+        js << JsVar.new(@js_map.variable).add_layer(JsVar.new(layer_name))
 
         js.to_s.html_safe
       end
@@ -84,10 +84,10 @@ module MapLayers
 
         variables = []
         # map js variables
-        variables << map.variable
-        variables.concat(map.variables)
-        # map_handler js variable
-        variables << map_handler.variable
+        variables << js_map.variable
+        variables.concat(js_map.variables)
+        # js_handler js variable
+        variables << js_handler.variable
 
         js_gen = JsGenerator.new #(:included => true)
 
