@@ -1,5 +1,3 @@
-require 'pp'
-
 module MapLayers
   module JsExtension
 
