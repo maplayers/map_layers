@@ -556,4 +556,24 @@ OpenLayersHandlers.SimpleMapHandler = function(map) {
     center = [centerLonLat.lat,centerLonLat.lon];
     return center;
   }
+
+
+  /**
+   * APIMethod: zoomToExtentAfterLayerLoadend
+   * Zoom to extend after a specified layer has been loaded.
+   * Like 
+   *
+   * Parameters:
+   * layerName - {string} The layer name to zoom on.
+   */
+  this.zoomToExtentAfterLayerLoadend = function(layerName) {
+    var layer = this.map.getLayersByName(layerName)[0];
+
+    layer.events.register(
+      'loadend', layer, function(evt) {
+        this.map.zoomToExtent(layer.getDataExtent())
+      }
+    )
+  }
+
 };
