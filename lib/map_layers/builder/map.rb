@@ -9,39 +9,42 @@ module MapLayers
         @js_builder = MapLayers::JsExtension::MapBuilder.new(name, options)
       end
 
+      # js_builder delegated methods
+      delegate :to_js, :js_map, :js_handler, to: :js_builder
+
       def add_layer(layer)
         case layer
         when VectorLayer
-          @js_builder.js << @js_builder.add_vector_layer(layer.name, layer.url, :format => layer.format)
+          js_builder.js << js_builder.add_vector_layer(layer.name, layer.url, :format => layer.format)
         else #
-          @js_builder.js << @js_builder.js_map.add_layer(layer)
+          js_builder.js << js_map.add_layer(layer)
         end
       end
 
       def add_control(control, options = {})
-        @js_builder.js << @js_builder.add_control(control)
+        js_builder.js << js_builder.add_control(control)
       end
 
       def add_feature(layer, feature)
         feat = MapLayers::JsExtension::JsVar.new(feature.name)
 
-        @js_builder.js << feat.assign(@js_builder.js_handler.add_feature(layer, feature.latitude, feature.longitude, feature.options))
+        js_builder.js << feat.assign(js_handler.add_feature(layer, feature.latitude, feature.longitude, feature.options))
 
-        @js_builder.js << @js_builder.js_handler.add_feature_attributes(feat, feature.attributes)
+        js_builder.js << js_handler.add_feature_attributes(feat, feature.attributes)
       end
 
       def set_center_on_feature(feature, zoom = nil)
         feat = MapLayers::JsExtension::JsVar.new(feature.name)
-        @js_builder.js << @js_builder.js_handler.set_center_on_feature(feat, 15)
+        js_builder.js << js_handler.set_center_on_feature(feat, 15)
       end
 
       def zoom_to_max_extent
-        @js_builder.js << @js_builder.map.zoom_to_max_extent
+        js_builder.js << js_map.zoom_to_max_extent
       end
 
       # method missing --> map_handler
       def method_missing(method, *args, &block)
-        @js_builder.js << @js_builder.js_handler.send(method, *args)
+        js_builder.js << js_handler.send(method, *args)
       end
     end
   end
