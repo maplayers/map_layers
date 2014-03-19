@@ -7,7 +7,6 @@ module MapLayers
         super(name, options)
         @format = options[:format] || :kml
         @url = options[:url]
-        puts "##########URL #{self.url}"
       end
     end
   end
