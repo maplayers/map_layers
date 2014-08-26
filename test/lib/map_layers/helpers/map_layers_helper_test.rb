@@ -23,7 +23,7 @@ describe MapLayers::ViewHelper do
     #end
 
     html =<<EOS
-<script src=\"http://maps.google.com/maps/api/js?v=3&sensor=false\" type=\"text/javascript\"></script>
+<script src=\"https://maps.googleapis.com/maps/api/js?sensor=false\" type=\"text/javascript\"></script>
 <script type=\"text/javascript\">
 //<![CDATA[
 OpenLayers.ImgPath='/assets/OpenLayers//';

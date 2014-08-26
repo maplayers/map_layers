@@ -1,0 +1,9 @@
+language: ruby
+rvm:
+  - 1.9.3
+notifications:
+  email:        
+    - luc.donnet@free.fr
+    - thomas.kienlen@lafourmi-immo.com
+script: "bundle exec rake test"
+  
