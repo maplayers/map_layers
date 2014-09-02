@@ -1,0 +1,42 @@
+// map_handler.addFeature('pikts', 8, 0);
+// map_handler.setDragCallback('onComplete', function(feature) { lonlat = feature.geometry.getBounds().getCenterLonLat().transform(
+//       map.getProjectionObject(),new OpenLayers.Projection("EPSG:4326")
+//     ); $('#picture_latitude').val(lonlat.lat); $('#picture_longitude').val(lonlat.lon); });
+
+
+// map_handler.addFeature('pikts', 50, 8, null);
+// map_handler.addFeature('pikts', 5000, 8000, null);
+
+// js :
+// var point = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Point(-111.04, 45.68), {icon:"icon.png"});
+// layer.addFeatures([point]);
+//
+// var point = new OpenLayers.Geometry.Point(ll.lon, ll.lat);
+// var feature = new OpenLayers.Feature.Vector(point,{icon:"icon.png"});
+// layer.addFeature(feature);
+//
+//
+// map_handler.setDragCallback('onComplete', function(feature) {
+//   lonlat = feature.geometry.getBounds().getCenterLonLat().transform(map.getProjectionObject(),new OpenLayers.Projection("EPSG:4326"));
+//   $('#picture_latitude').val(lonlat.lat);
+//   $('#picture_longitude').val(lonlat.lon);
+// });
+
+
+// map_handler.setCenterOnFeature(map_handler.getLayerFeatureById('pikts', 'picture_44'), 3);
+// map_handler.setDragCallback('onComplete', function (feat) { map_handler.setCenterOnFeature(feat, 5); });
+// map.setCenter(new OpenLayers.LonLat(1, 50), 5);
+// map.getLayersByName('pikts')[0].features[0]
+// pikts_handler.addFeaturePopup(map.getLayersByName('pikts')[0].features[0])
+// map.setCenter(map.getLayersByName('pikts2')[0].features[0].geometry.bounds.centerLonLat, 5)
+//
+// movestart, move, moveend, zoomend
+// map.events.register("moveend", map, function() {
+//            alert("panning");
+//        });
+// %{map}.events.register("moveend", map, function() {
+//   var center = %{map}.getCenter().clone().transform( %{map}.getProjectionObject(),new OpenLayers.Projection("EPSG:4326") );
+//   alert("moveend : " + center);
+//   %{map_handler}.addFeature('pikts', center.lat, center.lon);
+// });
+//

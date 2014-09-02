@@ -15,7 +15,7 @@ module MapLayers
         # js variables used for current map (at least one for each layer)
         @variables = []
 
-        @options = {:theme => false}.merge(options)
+        @options = {:theme => false, :controls => []}.merge(options)
         @js = JsGenerator.new #(:included => true)
         @js << JsVar.new(variable).assign(create)
         yield(self, @js) if block_given?

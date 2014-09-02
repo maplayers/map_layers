@@ -19,7 +19,8 @@ module MapLayers
     def map_layers_includes(map_builder, options = {}, &block)
       ml_script = options[:map_layer_script] || nil
 
-      layers_added = map_builder.map.layers
+      #layers_added = map_builder.js_builder.js_map.layers
+      layers_added = map_builder.js_builder.js_map.layers
 
       # keep a trace of loaded layers to avoid double loading
       @map_layers_loaded_layers ||= []
@@ -63,20 +64,20 @@ module MapLayers
     def map_layers_script(map_builder, options = {}, &block)
       onload = options[:onload] || false
 
-      img_path = options[:img_path] || '/assets/OpenLayers/'
+      img_path = options[:img_path] || '/assets/openlayers/img'
       unless controller.nil?
         rails_relative_url_root = controller.config.relative_url_root
         img_path=(Pathname(rails_relative_url_root||"") +img_path).cleanpath.to_s
         proxy = options[:proxy] || controller.controller_name
       end
 
-      js_code = (capture(&block) % { :map_handler => map_builder.map_handler.variable, :map => map_builder.map.variable  } rescue "alert('error');") if block_given?
+      js_code = (capture(&block) % { :map_handler => map_builder.js_builder.js_handler.variable, :map => map_builder.js_builder.js_map.variable  } rescue "alert('error');") if block_given?
 
       scripts = []
       scripts << "OpenLayers.ImgPath='#{img_path}/';"
       scripts << "OpenLayers.ProxyHost='/#{proxy}/proxy?url=';" unless proxy.nil?
-      scripts << map_builder.to_js(js_code)
-      scripts << %Q[$(document).ready(function() { map_layers_init_#{map_builder.map.variable}(); });] if onload
+      scripts << map_builder.js_builder.to_js(js_code)
+      scripts << %Q[$(document).ready(function() { map_layers_init_#{map_builder.js_builder.js_map.variable}(); });] if onload
 
       scripts.join("\n").html_safe
     end
@@ -92,8 +93,8 @@ module MapLayers
       klass << options[:class] unless options[:class].nil?
       content_tag(:div, :class => klass.join(" ")) do
         content = content_tag(:div, '',
-                              :id => map_builder.map.variable,
-                              :class => map_builder.map.layers.map { |l| "maplayers-#{l}" }.join(' ')
+                              :id => map_builder.js_builder.js_map.variable,
+                              :class => map_builder.js_builder.js_map.layers.map { |l| "maplayers-#{l}" }.join(' ')
                              )
         content << content_tag(:div, '', :class => 'loading') if include_loading
         content << capture(&block) if block_given?
@@ -104,7 +105,7 @@ module MapLayers
     def map_layers_form_fields_container(map_builder = nil, options = {}, &block)
       #  <div class="map_info" data-map="<%= local_assigns.has_key?(:map) ? map : 'map' %>">
       html_options = {:class => 'map_info'}
-      html_options.merge!({:data => { :map => map_builder.map.variable }}) unless map_builder.nil?
+      html_options.merge!({:data => { :map => map_builder.js_builder.js_map.variable }}) unless map_builder.nil?
 
       content_tag(:div, html_options) do
         capture(&block) if block_given?

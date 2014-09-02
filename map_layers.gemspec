@@ -15,6 +15,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = MapLayers::VERSION
 
+  gem.add_dependency 'openlayers-rails', '> 0.0.3'
   gem.add_development_dependency 'rails', '~> 3.2.0'
   gem.add_development_dependency 'rake-notes' # tmp
   #gem.add_development_dependency(%q<rspec>, ["~> 2.0.0"])

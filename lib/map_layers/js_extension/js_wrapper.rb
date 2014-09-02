@@ -1,5 +1,3 @@
-require 'pp'
-
 module MapLayers
   module JsExtension
 
@@ -109,8 +107,8 @@ module MapLayers
 
     module JsClassMissingConstWrapper
       def const_missing(sym)
-        if self.const_defined?(sym)
-          self.const_get(sym)
+        if self.const_defined?(sym, false)
+          self.const_get(sym, false)
         else
           self.const_set(sym, Class.new(MapLayers::JsExtension::JsClass))
         end

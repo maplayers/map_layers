@@ -28,7 +28,9 @@ Include required stylesheets in your assets :
 ```
 /*
  * ... in your scss (application.css.scss) file
- *= require OpenLayers.style
+ * (optional, openlayers default theme)
+ *= require openlayers/theme/default/style
+ * then map_layers
  *= require map_layers
 */
 ```
@@ -47,7 +49,8 @@ Include required javascript in your assets :
 
 ```
 // ... in your js (application.js) file
-//= require OpenLayers
+//= require openlayers-map_layers
+//= require openlayers-rails
 //= require map_layers
 
 ```
@@ -171,7 +174,7 @@ And finally prepare a new map, including more layers and some more controls.
   #   - polygon, to draw polygons on map
   #   - drag, to move features
   #   - none, to disable all controls
-  page << builder.map_handler.toggle_control('map_controls', 'select')
+  page << builder.map_handler.switch_control('map_controls', 'select')
 
   page << builder.map.zoom_to_max_extent()
 end
@@ -240,8 +243,8 @@ You may use it in a view :
 <%= link_to 'Center without zoom', '#', :onclick => "#{@map.map_handler.set_center_on_feature_by_nb("pikts", -1)}; return false;" %>
 
 <!-- Set control mode for layouts events -->
-<%= link_to 'Set control to Drag', '#', :onclick => "#{@map.map_handler.toggle_control('map_controls', 'drag')}; return false;" %>
-<%= link_to 'Set control to Select', '#', :onclick => "#{@map.map_handler.toggle_control('map_controls', 'select')}; return false;" %>
+<%= link_to 'Set control to Drag', '#', :onclick => "#{@map.map_handler.switch_control('map_controls', 'drag')}; return false;" %>
+<%= link_to 'Set control to Select', '#', :onclick => "#{@map.map_handler.switch_control('map_controls', 'select')}; return false;" %>
 ```
 
 

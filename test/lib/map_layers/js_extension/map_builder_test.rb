@@ -47,7 +47,7 @@ EOS
       page << builder.add_vector_layer('pikts', '/pictures.kml', :format => :kml, :default_control => 'select')
 
       page << builder.map_handler.initialize_controls('pikts')
-      page << builder.map_handler.toggle_control('pikts', 'select')
+      page << builder.map_handler.switch_control('pikts', 'select')
 
       page << builder.map.zoom_to_max_extent()
     end
@@ -67,7 +67,7 @@ bigmap.addControl(new OpenLayers.Control.MousePosition());
 pikts = new OpenLayers.Layer.Vector('pikts',{projection : bigmap.displayProjection,strategies : [new OpenLayers.Strategy.Fixed()],protocol : new OpenLayers.Protocol.HTTP({url : '/pictures.kml',format : new OpenLayers.Format.KML({extractStyles : true,extractAttributes : true})})});
 bigmap.addLayer(pikts);
 bigmap_handler.initializeControls('pikts');
-bigmap_handler.toggleControl('pikts','select');
+bigmap_handler.switchControl('pikts','select');
 bigmap.zoomToMaxExtent();
 }
 }

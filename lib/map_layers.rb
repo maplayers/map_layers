@@ -7,6 +7,7 @@ require 'map_layers/open_layers_handlers'
 require 'map_layers/js_extension/map'
 require 'map_layers/js_extension/map_handler'
 require 'map_layers/js_extension/map_builder'
+require 'map_layers/builder'
 
 require 'map_layers/railtie'
 require 'map_layers/engine'
