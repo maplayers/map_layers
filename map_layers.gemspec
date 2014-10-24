@@ -17,12 +17,9 @@ Gem::Specification.new do |gem|
 
   gem.add_development_dependency 'rails', '~> 3.2.0'
   gem.add_development_dependency 'rake-notes' # tmp
-  #gem.add_development_dependency(%q<rspec>, ["~> 2.0.0"])
-  #gem.add_development_dependency(%q<rspec-rails>, ["~> 2.0.0"])
 
-  #gem.add_development_dependency('rake')
-  #gem.add_development_dependency('autotest-rails')
-  #gem.add_development_dependency('autotest-notification')
+  gem.add_dependency "sass", ">= 3.2"
+
   unless ENV["CI"]
     gem.add_development_dependency "turn", "~> 0.9" if defined?(RUBY_VERSION) && RUBY_VERSION > '1.9'
   end
