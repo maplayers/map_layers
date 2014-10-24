@@ -19,8 +19,4 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'rake-notes' # tmp
 
   gem.add_dependency "sass", ">= 3.2"
-
-  unless ENV["CI"]
-    gem.add_development_dependency "turn", "~> 0.9" if defined?(RUBY_VERSION) && RUBY_VERSION > '1.9'
-  end
 end
